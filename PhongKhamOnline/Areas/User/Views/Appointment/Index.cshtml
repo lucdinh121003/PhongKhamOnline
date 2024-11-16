@@ -1,0 +1,86 @@
+﻿@using System.Security.Claims
+@model IEnumerable<PhongKhamOnline.Models.Appointment>
+@using Microsoft.AspNetCore.Identity
+
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách lịch hẹn</title>
+    <link rel="stylesheet" href="~/css/lichhen1.css">
+</head>
+<body>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Appointment ID</th>
+                <th>Bệnh nhân</th>
+                <th>Ngày hẹn</th>
+                <th>Giờ hẹn</th>
+                <th>Bác sĩ</th>
+                <th>Trạng thái</th>
+
+                @if (User.IsInRole("admin") || User.IsInRole("customer"))
+                {
+                    <th>Actions</th>
+                }
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                @if (User.IsInRole("customer") && item.BacSiId != user.IdBacSi)
+                {
+                    continue; // Bỏ qua cuộc hẹn không phải của bác sĩ đang đăng nhập
+                }
+                <tr>
+                    <td>@item.AppointmentId</td>
+                    <td>@item.PatientName</td>
+                    <td>@item.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                    <td>@item.AppointmentTimeSlot</td>
+                    <td>@item.BacSi.Ten</td>
+                    <td>@item.Status</td>
+                    @if (User.IsInRole("admin") || User.IsInRole("customer") && item.BacSiId == user.IdBacSi)
+                    {
+                        <td>
+                            @if (item.Status == AppointmentStatus.Pending)
+                            {
+                                <form asp-action="Confirm" asp-route-id="@item.AppointmentId" method="post" style="display:inline;">
+                                    <button type="submit" class="beautiful-button">
+                                        <strong>Confirm</strong>
+                                        
+                                    </button>
+                                </form>
+                                <form asp-action="Cancel" asp-route-id="@item.AppointmentId" method="post" style="display:inline;">
+                                    <button type="submit" class="beautiful-button">
+                                        <strong>Cancel</strong>
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

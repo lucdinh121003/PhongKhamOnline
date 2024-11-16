@@ -1,0 +1,90 @@
+﻿@model PhongKhamOnline.Models.BacSi
+
+@{
+    ViewData["Title"] = "Update";
+}
+
+<h1>Update</h1>
+
+<h4>BacSi</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Update" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Ten" class="control-label"></label>
+                <input asp-for="Ten" class="form-control" />
+                <span asp-validation-for="Ten" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SoDienThoai" class="control-label"></label>
+                <input asp-for="SoDienThoai" class="form-control" />
+                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ChuyenMonBacSiId" class="control-label"></label>
+                <select asp-for="ChuyenMonBacSiId" asp-items="ViewBag.ChuyenMonBacSi"
+                        class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiaChiPhongKham" class="control-label"></label>
+                <input asp-for="DiaChiPhongKham" class="form-control" />
+                <span asp-validation-for="DiaChiPhongKham" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DiaChiThuongTru" class="control-label"></label>
+                <input asp-for="DiaChiThuongTru" class="form-control" />
+                <span asp-validation-for="DiaChiThuongTru" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SoDienThoaiPhongKham" class="control-label"></label>
+                <input asp-for="SoDienThoaiPhongKham" class="form-control" />
+                <span asp-validation-for="SoDienThoaiPhongKham" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MoTa" class="control-label"></label>
+                <textarea asp-for="MoTa" class="form-control" rows="10"></textarea>
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SoHenToiDaTrongNgay" class="control-label"></label>
+                <input asp-for="SoHenToiDaTrongNgay" class="form-control" />
+                <span asp-validation-for="SoHenToiDaTrongNgay" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AnhDaiDien" class="control-label"></label>
+                <input type="file" asp-for="AnhDaiDien" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="SoTaiKhoan" class="control-label"></label>
+                <input asp-for="SoTaiKhoan" class="form-control" />
+                <span asp-validation-for="SoTaiKhoan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="KhungGioBacSiId" class="control-label"></label>
+                <select asp-for="KhungGioBacSiId" asp-items="ViewBag.KhungGioBacSis"
+                        class="form-control"></select>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

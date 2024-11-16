@@ -1,0 +1,280 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    /*  anh lien he */
+    .banner_area {
+        position: relative;
+        z-index: 1;
+        min-height: 300px;
+    }
+
+        .banner_area .banner_inner {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 300px;
+            /*   background: url('/images/corgii.png') no-repeat scroll center center; */
+            z-index: 1;
+            background-size: cover;
+        }
+
+            .banner_area .banner_inner .banner_content h2 {
+                color: #000;
+                font-size: 40px;
+                font-family: "Playfair Display", serif;
+                margin-bottom: 12px;
+                font-weight: bold;
+            }
+
+            .banner_area .banner_inner .banner_content p {
+                color: #666666;
+                font-size: 15px;
+            }
+
+            .banner_area .banner_inner .banner_content .page_link {
+                display: inline-block;
+            }
+
+                .banner_area .banner_inner .banner_content .page_link a {
+                    font-size: 14px;
+                    color: #000;
+                    font-family: "Open Sans", sans-serif;
+                    margin-right: 7px;
+                    position: relative;
+                    font-weight: 500;
+                }
+
+                    .banner_area .banner_inner .banner_content .page_link a:before {
+                        content: "/";
+                        position: absolute;
+                        right: -8px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                    }
+
+                    .banner_area .banner_inner .banner_content .page_link a:last-child {
+                        margin-right: 0px;
+                    }
+
+                        .banner_area .banner_inner .banner_content .page_link a:last-child:before {
+                            display: none;
+                        }
+
+                    .banner_area .banner_inner .banner_content .page_link a:hover {
+                        color: #000;
+                    }
+
+
+    /* gg map */
+
+    .map-wrapper {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%; /* Tỷ lệ khung ảnh 16:9 */
+    }
+
+        .map-wrapper iframe {
+            border: 0;
+            height: 100%;
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+        }
+    /* button */
+    .contact-info {
+        margin-bottom: 12px;
+    }
+
+    .contact-info__icon {
+        margin-right: 20px;
+    }
+
+        .contact-info__icon i, .contact-info__icon span {
+            color: #8f9195;
+            font-size: 27px;
+        }
+
+    .contact-info .media-body h3 {
+        font-size: 16px;
+        margin-bottom: 0;
+        color: #2a2a2a;
+    }
+
+        .contact-info .media-body h3 a {
+            color: #2a2a2a;
+        }
+
+            .contact-info .media-body h3 a:hover {
+                color: #0051d2;
+            }
+
+    .contact-info .media-body p {
+        color: #999999;
+    }
+
+
+    .contact-title {
+        font-size: 27px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #2a2a2a;
+    }
+
+    .form-contact label {
+        color: #0051d2;
+        font-size: 14px;
+    }
+
+    .form-contact .form-group {
+        margin-bottom: 30px;
+    }
+
+    .form-contact .form-control {
+        border: 1px solid #f0e9ff;
+        border-radius: 5px;
+        height: 48px;
+        padding-left: 18px;
+        font-size: 13px;
+        background: transparent;
+    }
+
+        .form-contact .form-control:focus {
+            outline: 0;
+            box-shadow: none;
+        }
+
+        .form-contact .form-control::placeholder {
+            font-weight: 300;
+            color: #999999;
+        }
+
+    .form-contact textarea {
+        border-radius: 12px;
+        height: 100% !important;
+    }
+
+    .modal-message .modal-dialog {
+        position: absolute;
+        top: 36%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%) !important;
+        margin: 0px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+        .modal-message .modal-dialog .modal-content .modal-header {
+            text-align: center;
+            display: block;
+            border-bottom: none;
+            padding-top: 50px;
+            padding-bottom: 50px;
+        }
+
+            .modal-message .modal-dialog .modal-content .modal-header .close {
+                position: absolute;
+                right: -15px;
+                top: -15px;
+                padding: 0px;
+                color: #fff;
+                opacity: 1;
+                cursor: pointer;
+            }
+
+            .modal-message .modal-dialog .modal-content .modal-header h2 {
+                display: block;
+                text-align: center;
+                color: #0051d2;
+                padding-bottom: 10px;
+                font-family: "Playfair Display", serif;
+            }
+
+            .modal-message .modal-dialog .modal-content .modal-header p {
+                display: block;
+            }
+
+</style>
+
+@* Liên Hệ *@
+<div class="row">
+    <div class="col-12">
+        <h2 class="contact-title">Thông Tin Liên Hệ</h2>
+    </div>
+    <div class="col-lg-8">
+        <form class="form-contact contact_form" action="#" method="post" id="contactForm" novalidate="novalidate">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <textarea class="form-control w-100" name="message" id="message" cols="30" rows="9" placeholder="Enter Message"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <input class="form-control" name="name" id="name" type="text" placeholder="Enter your name">
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <input class="form-control" name="email" id="email" type="email" placeholder="Enter email address">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <input class="form-control" name="subject" id="subject" type="text" placeholder="Enter Subject">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </div>
+        </form>
+
+
+    </div>
+
+    <div class="col-lg-4">
+        <div class="media contact-info">
+            <span class="contact-info__icon"><i class="ti-home"></i></span>
+            <div class="media-body">
+                <h3>
+                    <Quận 9_TP. Thủ Đức /h3>
+                        <p>63/1b/3 Đường 36, Linh Đông, Thủ Đức</p>
+            </div>
+        </div>
+        <div class="media contact-info">
+            <span class="contact-info__icon"><i class="ti-tablet"></i></span>
+            <div class="media-body">
+                <h3><a href="tel:454545654">0326 636 554</a></h3>
+                <p>Liên Hệ từ 9:00-18:00</p>
+            </div>
+        </div>
+        <div class="media contact-info">
+            <span class="contact-info__icon"><i class="ti-email"></i></span>
+            <div class="media-body">
+                <h3><a href="mailto:support@colorlib.com">thienluc@gmail.com</a></h3>
+                <p>Hãy liên hệ chúng tôi bất cứ lúc nào</p>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+  </section>
+
+
+@* gg map *@
+<
+<div class="col w-full lg:w-6/12">
+    <div class='Module Module-157'>
+        <div class='ModuleContent'>
+            <div class="map-wrapper">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d979.6682181053686!2d106.74526926955274!3d10.836326999332254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTDCsDUwJzEwLjgiTiAxMDbCsDQ0JzQ1LjMiRQ!5e0!3m2!1svi!2s!4v1712768016612!5m2!1svi!2s" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+

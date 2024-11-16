@@ -1,0 +1,28 @@
+﻿@model PhongKhamOnline.Models.ChuyenMonBacSi
+
+
+
+@{
+    ViewData["Title"] = "Sửa Tên Chuyên Môn";
+}
+
+<h2>Sửa Tên Chuyên Môn</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" /> <!-- ID của chuyên môn cần sửa -->
+    <div class="form-group">
+        <label for="newTenChuyenMon">Tên Chuyên Môn Mới</label>
+        <input type="text" name="newTenChuyenMon" class="form-control" value="@Model.TenChuyenMon" />
+        <span asp-validation-for="TenChuyenMon" class="text-danger"></span>
+    </div>
+    <br/ >
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Lưu Thay Đổi
+    </button>
+    <a asp-action="Index" class="btn btn-danger">
+        <i class="fas fa-times"></i> Hủy
+    </a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

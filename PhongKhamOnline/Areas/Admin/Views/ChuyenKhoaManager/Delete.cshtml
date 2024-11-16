@@ -1,0 +1,18 @@
+﻿@model PhongKhamOnline.Models.ChuyenMonBacSi
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h2>Xóa chuyên môn bác sĩ</h2>
+
+<div>
+    <h4>Bạn có chắc chắn muốn xóa chuyên môn này không?</h4>
+    <p>@Model.TenChuyenMon</p>
+</div>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

@@ -1,0 +1,64 @@
+﻿@model PhongKhamOnline.Models.BacSi
+
+@{
+    ViewData["Title"] = "Display";
+}
+<style>
+    .section-title {
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+        /* Định dạng cho các thẻ span và em */
+        .section-title h1 {
+            color: #3f51b5;
+        }
+</style>
+<section class="detailt-doctor">
+    <div class="container">
+        <div class="section-title">
+            <h1>
+                Thông tin chi tiết
+            </h1>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <div style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <img class="w-100" src="@Html.DisplayFor(model => model.AnhDaiDien)">
+                </div>
+                <div style="margin-top:20px">
+                    <h2><strong style="text-transform: uppercase;">THẠC SĨ @Html.DisplayFor(model => model.Ten)</strong></h2>
+                    <p>
+                        Học hàm, học vị: Thạc sĩ, Bác sĩ
+                    </p>
+                    <p>
+                        Kinh nghiệm: Trên 30 năm
+                    </p>
+                    <p>
+                        Chức vụ: Chuyên gia
+                        @{
+                            var chuyenMonText = Model.ChuyenMonBacSiId switch
+                            {
+                                1 => "Tai - Mũi - Họng",
+                                2 => "Nội - Soi",
+                                3 => "Cơ - Xương - Khớp",
+                                _ => ""
+                            };
+                        }
+                        @chuyenMonText
+                    </p>
+                </div>
+            </div>
+            <div class="col-8">
+                <div>
+                    <h3><strong>GIỚI THIỆU</strong></h3>
+                    <p>
+                        @Html.Raw(Model.MoTa.Replace("\n", "<br />"))
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+</section>

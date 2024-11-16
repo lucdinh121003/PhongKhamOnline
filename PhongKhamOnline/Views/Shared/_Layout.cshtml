@@ -1,0 +1,313 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    .dropbtn {
+        background-color: white;
+        color: black;
+        padding: 12px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+        .dropdown-content a {
+            color: #0a58ca;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+            .dropdown-content a:hover {
+                background-color: #f1f1f1
+            }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown:hover .dropbtn {
+        background-color: white;
+    }
+
+
+    /* Style cho phần footer */
+    footer {
+        background-color: #f8f9fa; /* Màu nền */
+        padding: 50px 0; /* Khoảng cách giữa các phần trong footer */
+        color: #555; /* Màu chữ */
+    }
+
+    /* Style cho phần title */
+    .title {
+        font-size: 20px; /* Cỡ chữ */
+        font-weight: bold; /* Đậm */
+        margin-bottom: 20px; /* Khoảng cách dưới */
+    }
+
+    /* Style cho phần subscribe form */
+    .subscribeemail {
+        width: 300px; /* Độ rộng của ô nhập email */
+        padding: 10px; /* Khoảng cách bên trong ô nhập */
+        margin-right: 10px; /* Khoảng cách bên phải */
+        border: 1px solid #ccc; /* Đường viền */
+        border-radius: 5px; /* Đường cong viền */
+    }
+
+    .subscribebutton {
+        background-color: #007bff; /* Màu nền của nút */
+        color: #fff; /* Màu chữ của nút */
+        border: none; /* Không có đường viền */
+        padding: 10px 20px; /* Khoảng cách bên trong nút */
+        border-radius: 5px; /* Đường cong viền */
+        cursor: pointer; /* Con trỏ thành bàn tay khi rê chuột qua nút */
+    }
+
+        .subscribebutton:hover {
+            background-color: #0056b3; /* Màu nền khi rê chuột qua */
+        }
+
+    /* Style cho phần địa chỉ */
+    .address {
+        margin-bottom: 30px; /* Khoảng cách dưới */
+    }
+
+        .address ol {
+            list-style: none; /* Bỏ điểm trước mỗi dòng */
+            padding: 0; /* Xóa padding */
+        }
+
+        .address li {
+            margin-bottom: 10px; /* Khoảng cách giữa các dòng */
+        }
+
+    /* Style cho phần liên kết */
+    .link {
+        margin-bottom: 10px; /* Khoảng cách giữa các liên kết */
+    }
+
+        .link a {
+            color: #555; /* Màu chữ của liên kết */
+            text-decoration: none; /* Không gạch chân */
+        }
+
+            .link a:hover {
+                color: #007bff; /* Màu chữ khi rê chuột qua */
+            }
+
+    /* Style cho phần mạng xã hội */
+    .social-wrapper a {
+        color: #007bff; /* Màu chữ */
+        margin-right: 10px; /* Khoảng cách bên phải giữa các biểu tượng */
+    }
+
+        .social-wrapper a:hover {
+            color: #0056b3; /* Màu chữ khi rê chuột qua */
+        }
+
+    a {
+        text-decoration: none !important;
+    }
+
+</style>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PhongKhamOnline</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PhongKhamOnline.styles.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container pt-2">
+                <ul class="navbar-nav flex-grow-1">
+                    <a href="Home"><img src="~/images/logo.jpg" alt="#"></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar">
+                    <li class="dropdown">
+                        <div class="dropdown">
+                            <button class="dropbtn">GIỚI THIỆU</button>
+                            <div class="dropdown-content">
+                                <a asp-area="" asp-controller="Home" asp-action="Index">Giới Thiệu</a>
+                                <a href="#">Tại sao lại chọn chúng tôi</a>
+                                <a href="#">Hệ Thống</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a style="font-size: 15px" class="nav-link text-dark" asp-area="" asp-controller="BacSi" asp-action="Index">ĐỘI NGŨ BÁC SĨ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a style="font-size: 15px" class="nav-link text-dark" asp-area="" asp-controller="TinTuc" asp-action="Index">TIN TỨC</a>
+                    </li>
+                    <li class="dropdown">
+                        <div class="dropdown">
+                            <button class="dropbtn">CẨM NANG</button>
+                            <div class="dropdown-content">
+                                <a href="#">Cách đăng kí khám</a>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a style="font-size: 15px" class="nav-link text-dark" asp-area="" asp-controller="LienHe" asp-action="Index">LIÊN HỆ</a>
+                    </li>
+            </div>
+            </ul>
+            <partial name="_LoginPartial" />
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer>
+        <section class="footer-middle">
+            <div class="container">
+                <div class="row">
+                    <div class="col w-1/2 md:w-1/2 xl:w-3/12 ">
+                        <div class='Module Module-146'>
+                            <div class='ModuleContent'>
+                                <div class="title">Liên kết nhanh</div>
+                                <ul style="padding-left: 0">
+                                    <li>
+                                        <a href="" title="Giới thiệu">
+                                            <span>Giới thiệu</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="" title="Chuyên khoa">
+                                            <span>Chuyên khoa</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" title="Đội ngũ bác sĩ">
+                                            <span>Đội ngũ bác sĩ</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="" title="Tin tức">
+                                            <span>Tin tức</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="" title="Hướng dẫn khách hàng">
+                                            <span>Hướng dẫn khách hàng</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="" title="Liên hệ">
+                                            <span>Liên hệ</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col md:w-1/2 xl:w-4/12">
+                        <div class='Module Module-148'>
+                            <div class='ModuleContent'>
+                                <div class="title">Liên kết</div>
+                                <div class="wrapper">
+                                    <div class="link"><a href="" class="wrap"><em class="icon"><img alt="" class="lazyload" data-src="" /></em><span>Cổng thông tin điện tử Sở Y tế TP. HCM</span></a></div>
+                                    <div class="link"><a href="" class="wrap"><em class="icon"><img alt="" class="lazyload" data-src="" /></em><span>Cập nhật thông báo Sở Y tế TP. HCM</span></a></div>
+
+                                    &nbsp;
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="social-wrapper">
+                            <div class='Module Module-149'><div class='ModuleContent'><a href="#"><em class="mdi mdi-facebook"></em></a><a href="#"><em class="mdi mdi-youtube"></em></a><a href="#"><em class="mdi mdi-twitter"></em></a></div></div>
+                        </div>
+                    </div>
+                    <div class="col lg:w-6/12">
+                        <div class="item">
+                            <div class='Module Module-143'>
+                                <div class='ModuleContent'>
+                                    <div class="content">
+                                        <div class="title">ĐĂNG KÝ NHẬN BẢN TIN</div>
+                                        <div class="subscribe-wrap">
+                                            <div class='Module Module-144'>
+                                                <div id='ctl00_mdl144_ctl00_subscribe1_pnlSubscribeBody' class='subscribe'>
+                                                    <div id="ctl00_mdl144_ctl00_subscribe1_UpdatePanel1">
+                                                        <div id='ctl00_mdl144_ctl00_subscribe1_pnlSubscribe' class='subscribefrm'>
+                                                            <input onfocus="javascript:watermarkEnter(this, &#39;&#39;);" onblur="javascript:watermarkLeave(this, &#39;&#39;);" name="ctl00$mdl144$ctl00$subscribe1$txtEmail" type="text" id="ctl00_mdl144_ctl00_subscribe1_txtEmail" title="Nhập địa chỉ email hợp lệ." class="subscribeemail" placeholder="Địa chỉ email" />
+                                                            <button onclick="__doPostBack('ctl00$mdl144$ctl00$subscribe1$btnSubscribe','')" id="ctl00_mdl144_ctl00_subscribe1_btnSubscribe" class="subscribebutton" ValidationGroup="subscribe">
+                                                                Đăng ký
+                                                            </button>
+                                                            <span id="ctl00_mdl144_ctl00_subscribe1_reqEmail" class="fa fa-exclamation-triangle" style="display:none;">Vui lòng nhập email.</span>
+                                                            <span id="ctl00_mdl144_ctl00_subscribe1_regexEmail" class="fa fa-exclamation-triangle" style="display:none;">Email không hợp lệ.</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="address" style="margin-top: 10px">
+                                            <div class='Module Module-145'>
+                                                <div class='ModuleContent'>
+                                                    <div class="caption"><span>Địa chỉ: 42/D2, Tăng Nhơn Phú A, Thủ Đức, TP.HCM</span></div>
+                                                    <div class="caption">
+                                                        <span>Số điện thoại: <b>1900 0091</b></span>
+                                                    </div>
+                                                    <div class="caption"><span>Email: congluc@gmail.com</span></div>
+                                                    <div class="caption">
+                                                        <span>Lịch làm việc: <b>Từ thứ 2 - thứ 7 (7:30 - 16:30)</b></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="footer-bottom">
+            <div class="container">
+                <div class="wrapper">
+                    <div class="copyright">
+                        <div class='Module Module-209'>
+                        </div>
+                    </div>
+                    <div class="back-to-top"><em class="lnr lnr-chevron-up"></em></div>
+                </div>
+            </div>
+        </section>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
