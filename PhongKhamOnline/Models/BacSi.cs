@@ -9,7 +9,7 @@ namespace PhongKhamOnline.Models
         public string Ten { get; set; }
         public string SoDienThoai { get; set; }
         public int ChuyenMonBacSiId { get; set; }
-        public ChuyenMonBacSi? ChuyenMonBacSi { get; set; }
+        public ChuyenMonBacSi ChuyenMonBacSi { get; set; }
         public string DiaChiPhongKham { get; set; }
         public string DiaChiThuongTru { get; set; }
         public string Email { get; set; }
@@ -18,10 +18,9 @@ namespace PhongKhamOnline.Models
         public int? SoHenToiDaTrongNgay { get; set; }
         public string? AnhDaiDien { get; set; }
         public List<BacSiImage>? AnhDaiDiens { get; set; }
-        public string SoTaiKhoan { get; set; }
-        public int KhungGioBacSiId { get; set; }
-        public ApplicationUser User { get; set; }
-        public KhungGioBacSi? KhungGioBacSi { get; set; }
+        public string SoTaiKhoan { get; set; }      
+        public string UserId { get; set; }
+        public ApplicationUser User { get; set; }   
 
     }
 }

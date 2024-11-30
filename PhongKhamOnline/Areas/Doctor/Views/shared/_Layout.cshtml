@@ -30,36 +30,10 @@
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <!-- Menu Items for Admin -->
-                        @if (User.IsInRole("admin"))
-                        {
-                            <a class="nav-item" href="/Admin">
-                                <div class="nav-icon"><i class="fas fa-user-md"></i></div>
-                                Quản Lí Bác Sĩ
-                            </a>
-                            <a class="nav-item" href="/User/Appointment">
-                                <div class="nav-icon"><i class="fas fa-calendar-alt"></i></div>
-                                Quản Lí Lịch Hẹn
-                            </a>
-                            <a class="nav-item" href="/Admin/ChuyenKhoaManager">
-                                <div class="nav-icon"><i class="fas fa-stethoscope"></i></div>
-                                Quản Lí Chuyên Khoa
-                            </a>
-                            <a class="nav-item" href="/Admin/LichLamViec">
-                                <div class="nav-icon"><i class="fas fa-user-md"></i></div>
-                                Lịch Làm Việc
-                            </a>
-                        }
-                        @if (User.IsInRole("costumer"))
-                        {
-                            <a class="nav-item" href="/User/Appointment">
-                                <div class="nav-icon"><i class="fas fa-calendar-alt"></i></div>
-                                Quản Lí Lịch Hẹn
-                            </a>
-                            <a class="nav-item" href="/Admin/LichLamViec">
-                                <div class="nav-icon"><i class="fas fa-user-md"></i></div>
-                                Lịch Làm Việc
-                            </a>
-                        }
+                        <a class="nav-item" href="/Doctor">
+                            <div class="nav-icon"><i class="fas fa-user-md"></i></div>
+                            Lịch Làm Việc
+                        </a>
                     </div>
                 </div>
             </nav>

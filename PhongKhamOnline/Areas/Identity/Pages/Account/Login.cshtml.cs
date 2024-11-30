@@ -21,13 +21,17 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager,
+                  UserManager<ApplicationUser> userManager,
+                  ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
         }
+        private readonly ILogger<LoginModel> _logger;
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -113,9 +117,34 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                Console.WriteLine(result);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        // Lấy danh sách role của user
+                        var roles = await _userManager.GetRolesAsync(user);
+                        if (roles != null)
+                        {
+
+                            var role = roles.FirstOrDefault(); // Lấy role đầu tiên
+                            if (role == "admin")
+                            {
+                                return LocalRedirect("~/Admin");
+                            }
+                            else if (role == "customer")
+                            {
+                                return LocalRedirect(returnUrl);
+                            }
+                            else
+                            {
+
+                                return LocalRedirect("~/Doctor");
+                            }
+                        }
+                       
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

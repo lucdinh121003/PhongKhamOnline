@@ -12,15 +12,15 @@ using PhongKhamOnline.DataAccess;
 namespace PhongKhamOnline.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240523125814_AddUserIdToBacSi")]
-    partial class AddUserIdToBacSi
+    [Migration("20241130090857_XoaBangKhungGioBacSi")]
+    partial class XoaBangKhungGioBacSi
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -241,6 +241,10 @@ namespace PhongKhamOnline.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("AppointmentTimeSlot")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("BacSiId")
                         .HasColumnType("int");
 
@@ -273,9 +277,11 @@ namespace PhongKhamOnline.Migrations
                     b.Property<string>("AnhDaiDien")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ChuyenMon")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ApplicationUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ChuyenMonBacSiId")
+                        .HasColumnType("int");
 
                     b.Property<string>("DiaChiPhongKham")
                         .IsRequired()
@@ -288,9 +294,6 @@ namespace PhongKhamOnline.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("KhungGioBacSiId")
-                        .HasColumnType("int");
 
                     b.Property<string>("MoTa")
                         .HasColumnType("nvarchar(max)");
@@ -321,7 +324,9 @@ namespace PhongKhamOnline.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KhungGioBacSiId");
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("ChuyenMonBacSiId");
 
                     b.HasIndex("UserId");
 
@@ -350,7 +355,7 @@ namespace PhongKhamOnline.Migrations
                     b.ToTable("BacSiImages");
                 });
 
-            modelBuilder.Entity("PhongKhamOnline.Models.KhungGioBacSi", b =>
+            modelBuilder.Entity("PhongKhamOnline.Models.ChuyenMonBacSi", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -358,14 +363,59 @@ namespace PhongKhamOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("GioLamViec")
+                    b.Property<string>("TenChuyenMon")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("KhungGioBacSis");
+                    b.ToTable("ChuyenMonBacSi");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.KhungThoiGian", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KhungThoiGian");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.LichLamViec", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BacSiId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayLamViec")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SoLuongToiDa")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThoiGian")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BacSiId");
+
+                    b.ToTable("LichLamViecs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -432,19 +482,23 @@ namespace PhongKhamOnline.Migrations
 
             modelBuilder.Entity("PhongKhamOnline.Models.BacSi", b =>
                 {
-                    b.HasOne("PhongKhamOnline.Models.KhungGioBacSi", "KhungGioBacSi")
+                    b.HasOne("PhongKhamOnline.Models.ApplicationUser", null)
                         .WithMany("BacSis")
-                        .HasForeignKey("KhungGioBacSiId")
+                        .HasForeignKey("ApplicationUserId");
+
+                    b.HasOne("PhongKhamOnline.Models.ChuyenMonBacSi", "ChuyenMonBacSi")
+                        .WithMany("BacSis")
+                        .HasForeignKey("ChuyenMonBacSiId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("PhongKhamOnline.Models.ApplicationUser", "User")
-                        .WithMany("BacSis")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("KhungGioBacSi");
+                    b.Navigation("ChuyenMonBacSi");
 
                     b.Navigation("User");
                 });
@@ -453,6 +507,17 @@ namespace PhongKhamOnline.Migrations
                 {
                     b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
                         .WithMany("AnhDaiDiens")
+                        .HasForeignKey("BacSiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BacSi");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.LichLamViec", b =>
+                {
+                    b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
+                        .WithMany()
                         .HasForeignKey("BacSiId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -470,7 +535,7 @@ namespace PhongKhamOnline.Migrations
                     b.Navigation("AnhDaiDiens");
                 });
 
-            modelBuilder.Entity("PhongKhamOnline.Models.KhungGioBacSi", b =>
+            modelBuilder.Entity("PhongKhamOnline.Models.ChuyenMonBacSi", b =>
                 {
                     b.Navigation("BacSis");
                 });

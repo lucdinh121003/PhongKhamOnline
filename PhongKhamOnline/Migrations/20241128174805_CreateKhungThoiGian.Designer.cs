@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhongKhamOnline.DataAccess;
 
@@ -11,13 +12,15 @@ using PhongKhamOnline.DataAccess;
 namespace PhongKhamOnline.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241128174805_CreateKhungThoiGian")]
+    partial class CreateKhungThoiGian
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -387,6 +390,51 @@ namespace PhongKhamOnline.Migrations
                     b.ToTable("KhungGioBacSis");
                 });
 
+            modelBuilder.Entity("PhongKhamOnline.Models.KhungThoiGian", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KhungThoiGian");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.LichLamViec", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BacSiId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayLamViec")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SoLuongToiDa")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThoiGian")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BacSiId");
+
+                    b.ToTable("LichLamViecs");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -478,6 +526,17 @@ namespace PhongKhamOnline.Migrations
                 {
                     b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
                         .WithMany("AnhDaiDiens")
+                        .HasForeignKey("BacSiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BacSi");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.LichLamViec", b =>
+                {
+                    b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
+                        .WithMany()
                         .HasForeignKey("BacSiId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PhongKhamOnline.Models;
@@ -11,14 +12,16 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
     public class BacSiManagerController : Controller
     {
         private readonly IBacSiRepository _BacSiRepository;
-        private readonly IKhungGioBacSiRepository _KhungGioBacSiRepository;
+       
         private readonly IChuyenMonBacSiRepository _ChuyenMonBacSiRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BacSiManagerController(IBacSiRepository BacSiRepository, IKhungGioBacSiRepository KhungGioBacSiRepository, IChuyenMonBacSiRepository ChuyenMonBacSiRepository)
+        public BacSiManagerController(IBacSiRepository BacSiRepository,  IChuyenMonBacSiRepository ChuyenMonBacSiRepository, UserManager<ApplicationUser> userManager)
         {
             _BacSiRepository = BacSiRepository;
-            _KhungGioBacSiRepository = KhungGioBacSiRepository;
+           
             _ChuyenMonBacSiRepository = ChuyenMonBacSiRepository;
+            _userManager = userManager;
         }
         public async Task<IActionResult> Index()
         {
@@ -28,9 +31,10 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
 
         public async Task<IActionResult> Create()
         {
-            var categories = await _KhungGioBacSiRepository.GetAllAsync();
+           
             var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.KhungGioBacSis = new SelectList(categories, "Id", "GioLamViec");
+
+          
             ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon");
             return View();
         }
@@ -43,12 +47,14 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 {
                     product.AnhDaiDien = await SaveImage(AnhDaiDien);
                 }
+                var data = await _userManager.FindByEmailAsync(product.Email);
+                product.UserId = data.Id;
                 await _BacSiRepository.AddAsync(product);
                 return RedirectToAction(nameof(Index));
             }
-            var categories = await _KhungGioBacSiRepository.GetAllAsync();
+           
             var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.KhungGioBacSis = new SelectList(categories, "Id", "GioLamViec");
+          
             ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon");
 
             return View(product);
@@ -71,9 +77,9 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var categories = await _KhungGioBacSiRepository.GetAllAsync();
+          
             var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.KhungGioBacSis = new SelectList(categories, "Id", "GioLamViec", product.KhungGioBacSiId);
+         
             ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon", product.ChuyenMonBacSiId);
             return View(product);
         }
@@ -95,9 +101,9 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 await _BacSiRepository.UpdateAsync(product);
                 return RedirectToAction(nameof(Index));
             }
-            var categories = await _KhungGioBacSiRepository.GetAllAsync();
+           
             var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.KhungGioBacSis = new SelectList(categories, "Id", "GioLamViec", product.KhungGioBacSiId);
+            
             ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon", product.ChuyenMonBacSiId);
             return View(product);
         }

@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PhongKhamOnline.DataAccess;
 using PhongKhamOnline.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace PhongKhamOnline.Repositories
 {
@@ -18,9 +16,8 @@ namespace PhongKhamOnline.Repositories
 
         public async Task<IEnumerable<BacSi>> GetAllAsync()
         {
-            return await _context.BacSis.Include(p => p.KhungGioBacSi)
-                                         .Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
-                                         .ToListAsync();
+            return await _context.BacSis.Include(p => p.ChuyenMonBacSi).ToListAsync();  // Đảm bảo có thể truy cập ChuyenMonBacSi
+
         }
 
         public async Task<IEnumerable<BacSi>> searchDoctor(string value)
@@ -37,8 +34,7 @@ namespace PhongKhamOnline.Repositories
 
         public async Task<BacSi> GetByIdAsync(int id)
         {
-            return await _context.BacSis.Include(p => p.KhungGioBacSi)
-                                         .Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
+            return await _context.BacSis.Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
                                          .FirstOrDefaultAsync(p => p.Id == id);
         }
 
