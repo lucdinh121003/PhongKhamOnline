@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol;
 using PhongKhamOnline.DataAccess;
 using PhongKhamOnline.Models;
 using System.Collections.Generic;
@@ -18,9 +19,11 @@ namespace PhongKhamOnline.Repositories
 
         public async Task<IEnumerable<BacSi>> GetAllAsync()
         {
-            return await _context.BacSis.Include(p => p.KhungGioBacSi)
-                                         .Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
+            var data = await _context.BacSis
+                                         .Include(p => p.ChuyenMonBacSi)
+                                         .Include(p=> p.User)
                                          .ToListAsync();
+            return data;
         }
 
         public async Task<IEnumerable<BacSi>> searchDoctor(string value)
@@ -37,7 +40,7 @@ namespace PhongKhamOnline.Repositories
 
         public async Task<BacSi> GetByIdAsync(int id)
         {
-            return await _context.BacSis.Include(p => p.KhungGioBacSi)
+            return await _context.BacSis
                                          .Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
                                          .FirstOrDefaultAsync(p => p.Id == id);
         }
@@ -71,6 +74,11 @@ namespace PhongKhamOnline.Repositories
                 _context.BacSis.Remove(bacSi);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<BacSi> GetByUserId(string userId)
+        {
+            return await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
         }
     }
 }

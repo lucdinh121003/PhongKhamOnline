@@ -14,6 +14,17 @@
         .section-title h1 {
             color: #3f51b5;
         }
+
+    .container-time {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    .box-time {
+        background: #000;
+        color: #fff;
+        padding:20px;
+    }
 </style>
 <section class="detailt-doctor">
     <div class="container">
@@ -59,6 +70,60 @@
 
                 </div>
 
+                <form>
+                    <input type="hidden" id="idUser" value="@Model.UserId" />
+                    <div class="form-group">
+                        <label for="ngayLamViec">Ngày làm việc</label>
+                        <input type="date"
+                               class="form-control"
+                               id="ngayLamViecUser"
+                               name="ngayLamViec"
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                               required />
+                    </div>
+
+                </form>
+                <div id="khungGioContainer" class="form-group mt-3">
+                    <h4>Khung giờ</h4>
+                    <div id="khungGioList" class="container-time"></div>
+                </div>
+
             </div>
         </div>
 </section>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#ngayLamViecUser').on('change', function () {
+            var ngayLamViecUser = $(this).val();
+            var idUser = $('#idUser').val();
+
+            $.ajax({
+                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
+                type: 'GET',
+                data: { idUser: idUser, ngayLamViec: ngayLamViecUser },
+                success: function (khungGioDaDat) {
+                    console.log("khungGioDaDat", khungGioDaDat)
+                    // Reset tất cả checkbox
+                    var khungGioList = $('#khungGioList');
+                    khungGioList.empty();
+
+                    // Tạo checkbox cho mỗi khung giờ
+                    if (khungGioDaDat.length === 0) {
+                        var checkbox = `<div class="">Bác sĩ không có lịch rảnh hôm nay </label`;
+                        khungGioList.append(checkbox);
+                        return;
+                    }
+                    khungGioDaDat.forEach(function (khungGio) {
+                        var checkbox = `<div class="box-time" for="khungGio_${khungGio.id}">${khungGio.time}</label`;
+                        khungGioList.append(checkbox);
+                    });
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra khi tải dữ liệu khung giờ.');
+                }
+            });
+        });
+    });
+</script>

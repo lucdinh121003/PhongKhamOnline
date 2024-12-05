@@ -30,9 +30,8 @@
                 <th>Số Điện Thoại</th>
                 <th>Chuyên Môn</th>
                 <th>Email</th>
-                <th>Ngày hẹn tối đa</th>
                 <th>Ảnh</th>
-                <th>Khung Giờ</th>
+                <th>Thao Tác</th>
             </tr>
         </thead>
         <tbody>
@@ -66,28 +65,11 @@
                         @Html.DisplayFor(modelItem => item.Email)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.SoHenToiDaTrongNgay)
-                    </td>
-                    <td>
                         @if (!string.IsNullOrEmpty(item.AnhDaiDien))
                         {
                             <img src="@item.AnhDaiDien" alt="Product Image" style="max-width:200px;" />
                         }
 
-                    </td>
-                    <td>
-                        @if (item.KhungGioBacSiId == 1)
-                        {
-                            <span>7h-11h</span>
-                        }
-                        else if (item.KhungGioBacSiId == 2)
-                        {
-                            <span>14h-17h</span>
-                        }
-                        else if (item.KhungGioBacSiId == 3)
-                        {
-                            <span>17h-21h</span>
-                        }
                     </td>
                     <td>
                         <a asp-action="Update" asp-route-id="@item.Id" class="Btn tim">

@@ -15,13 +15,11 @@ namespace PhongKhamOnline.Models
         public string Email { get; set; }
         public string SoDienThoaiPhongKham { get; set; }
         public string? MoTa { get; set; }
-        public int? SoHenToiDaTrongNgay { get; set; }
         public string? AnhDaiDien { get; set; }
         public List<BacSiImage>? AnhDaiDiens { get; set; }
         public string SoTaiKhoan { get; set; }
-        public int KhungGioBacSiId { get; set; }
+        public string UserId { get; set; }
         public ApplicationUser User { get; set; }
-        public KhungGioBacSi? KhungGioBacSi { get; set; }
 
     }
 }

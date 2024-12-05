@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhongKhamOnline.DataAccess;
 
@@ -11,9 +12,11 @@ using PhongKhamOnline.DataAccess;
 namespace PhongKhamOnline.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241201094054_Rename_IdKhungThoiGian_To_KhungThoiGianId")]
+    partial class Rename_IdKhungThoiGian_To_KhungThoiGianId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,6 +292,9 @@ namespace PhongKhamOnline.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("KhungGioBacSiId")
+                        .HasColumnType("int");
+
                     b.Property<string>("MoTa")
                         .HasColumnType("nvarchar(max)");
 
@@ -319,6 +325,8 @@ namespace PhongKhamOnline.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChuyenMonBacSiId");
+
+                    b.HasIndex("KhungGioBacSiId");
 
                     b.HasIndex("UserId");
 
@@ -365,6 +373,24 @@ namespace PhongKhamOnline.Migrations
                     b.ToTable("ChuyenMonBacSi");
                 });
 
+            modelBuilder.Entity("PhongKhamOnline.Models.KhungGioBacSi", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("GioLamViec")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KhungGioBacSis");
+                });
+
             modelBuilder.Entity("PhongKhamOnline.Models.KhungThoiGian", b =>
                 {
                     b.Property<int>("Id")
@@ -391,6 +417,9 @@ namespace PhongKhamOnline.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("BacSiId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdKhungThoiGian")
                         .HasColumnType("int");
 
                     b.Property<int>("KhungThoiGianId")
@@ -481,6 +510,12 @@ namespace PhongKhamOnline.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PhongKhamOnline.Models.KhungGioBacSi", "KhungGioBacSi")
+                        .WithMany("BacSis")
+                        .HasForeignKey("KhungGioBacSiId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PhongKhamOnline.Models.ApplicationUser", "User")
                         .WithMany("BacSis")
                         .HasForeignKey("UserId")
@@ -488,6 +523,8 @@ namespace PhongKhamOnline.Migrations
                         .IsRequired();
 
                     b.Navigation("ChuyenMonBacSi");
+
+                    b.Navigation("KhungGioBacSi");
 
                     b.Navigation("User");
                 });
@@ -533,6 +570,11 @@ namespace PhongKhamOnline.Migrations
                 });
 
             modelBuilder.Entity("PhongKhamOnline.Models.ChuyenMonBacSi", b =>
+                {
+                    b.Navigation("BacSis");
+                });
+
+            modelBuilder.Entity("PhongKhamOnline.Models.KhungGioBacSi", b =>
                 {
                     b.Navigation("BacSis");
                 });

@@ -12,7 +12,7 @@ namespace PhongKhamOnline.Repositories
         Task AddAsync(BacSi bacSi);
         Task UpdateAsync(BacSi bacSi);
         Task DeleteAsync(int id);
-
+        Task<BacSi> GetByUserId(string userId);
     }
 
 }

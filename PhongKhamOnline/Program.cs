@@ -19,9 +19,9 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IBacSiRepository, EFBacSiRepository>();
-builder.Services.AddScoped<IKhungGioBacSiRepository, EFKhungGioBacSiRepository>();
-
 builder.Services.AddScoped<IChuyenMonBacSiRepository, EFChuyenMonBacSiRepository>();
+builder.Services.AddScoped<ILichLamViecRepository, EFLichLamViecRepository>();
+builder.Services.AddScoped<IKhungThoiGianRepository, EFKhungThoiGianRepository>();
 
 
 var app = builder.Build();
@@ -44,6 +44,13 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
       name: "areas",
       pattern: "{area:exists}/{controller=BacSiManager}/{action=Index}/{id?}"
+    );
+});
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+      name: "areas",
+      pattern: "{area:exists}/{controller=LichLamViecDoctor}/{action=Index}/{id?}"
     );
 });
 

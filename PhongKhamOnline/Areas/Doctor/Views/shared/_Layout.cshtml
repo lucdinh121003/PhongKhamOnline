@@ -1,14 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Quản Trị WebSite</title>
+    <title>Lịch Hẹn</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="/admin/css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -17,30 +19,28 @@
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand -->
-        <a class="navbar-brand ps-3" href="#">Quản Trị WebSite</a>
+        <a class="navbar-brand ps-3" href="#">Lịch Hẹn</a>
         <!-- Sidebar Toggle -->
         <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
         <!-- Home Button -->
         <a asp-action="Index" asp-area="" asp-controller="Home" class="btn btn-dark">Home</a>
+
+        <li class="nav-item">
+            <a id="manage" title="Manage">Xin Chào Bác Sĩ @user.FullName</a>
+        </li>
     </nav>
 
-    <div id="layoutSidenav">
+    <div id="layoutSidenav" >
         <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion" >
+               
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <!-- Menu Items for Admin -->
-                        <a class="nav-item" href="/Admin">
+                        <a class="nav-item" href="/Doctor">
                             <div class="nav-icon"><i class="fas fa-user-md"></i></div>
-                            Quản Lí Bác Sĩ
-                        </a>
-                        <a class="nav-item" href="/Admin/ChuyenKhoaManager">
-                            <div class="nav-icon"><i class="fas fa-stethoscope"></i></div>
-                            Quản Lí Chuyên Khoa
-                        </a>
-                        <a class="nav-item" href="/Admin/LichLamViec">
-                            <div class="nav-icon"><i class="fas fa-user-md"></i></div>
-                            Lịch Làm Việc
+                            Lịch Làm Việc 
                         </a>
                     </div>
                 </div>

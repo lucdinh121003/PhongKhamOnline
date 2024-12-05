@@ -1,0 +1,123 @@
+﻿@model PhongKhamOnline.Models.LichLamViec
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+@{
+    ViewData["Title"] = "Thêm Lịch Làm Việc";
+}
+
+@{
+    Layout = "_Layout";
+}
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/CreateLichLamViec.css">
+</head>
+
+<h2>@ViewData["Title"]</h2>
+
+@* @if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+} *@
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="idUser">Bác sĩ  @user.FullName</label>
+        <input type="text"
+               class="form-control"
+               id="idUser"
+               name="idUser"
+               value="@user.Id"
+               style="display: none"
+                />
+    </div>
+
+    <div class="form-group">
+        <label for="ngayLamViec">Ngày làm việc</label>
+        <input type="date"
+               class="form-control"
+               id="ngayLamViec"
+               name="ngayLamViec"
+               min="@DateTime.Now.ToString("yyyy-MM-dd")"
+               required />
+    </div>
+
+    <div class="form-group">
+        <label>Khung giờ làm việc</label>
+        <div class="time-grid">
+            @foreach (var khungGio in ViewBag.KhungGio)
+            {
+                <div class="time-item">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="khungGios" value="@khungGio.Id" />
+                        <label class="form-check-label">@khungGio.Time</label>
+                    </div>
+                </div>
+            }
+        </div>
+        <span class="text-danger">
+            @Html.ValidationMessage("KhungGios")
+        </span>
+    </div>
+
+    <div class="form-group">
+        <label for="soLuongToiDa">Số lượng tối đa</label>
+        <input type="number" class="form-control" id="soLuongToiDa" name="soLuongToiDa" required />
+    </div>
+
+    <div class="form-group text-center">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Lưu
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Hủy
+        </a>
+    </div>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#ngayLamViec').on('change', function () {
+            var ngayLamViec = $(this).val();
+            var idUser = $('#idUser').val();
+
+            $.ajax({
+                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
+                type: 'GET',
+                data: { idUser: idUser, ngayLamViec: ngayLamViec },
+                success: function (khungGioDaDat) {
+                    console.log("khungGioDaDat", khungGioDaDat)
+                    // Reset tất cả checkbox
+                    $('input[name="khungGios"]').prop('disabled', false).prop('checked', false);
+
+                    // Vô hiệu hóa các checkbox tương ứng với khung giờ đã được đặt
+                    khungGioDaDat.forEach(function (khungGio) {
+                        $('input[name="khungGios"][value="' + khungGio.id + '"]').prop('disabled', false).prop('checked', true);
+                    });
+                },
+                error: function () {
+                    alert('Có lỗi xảy ra khi tải dữ liệu khung giờ.');
+                }
+            });
+        });
+    });
+</script>

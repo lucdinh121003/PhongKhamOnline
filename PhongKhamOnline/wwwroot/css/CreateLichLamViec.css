@@ -1,0 +1,51 @@
+﻿.schedule-container {
+    border: 1px solid #333; /* Viền đen nhẹ bao quanh toàn bộ thông tin */
+    padding: 20px; /* Khoảng cách trong khung */
+    border-radius: 10px; /* Bo góc khung */
+    background-color: #f9f9f9; /* Màu nền nhẹ cho khung */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng mờ nhẹ */
+}
+
+.schedule-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+    .schedule-info h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .schedule-info .detail {
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* Mỗi dòng có 6 cột */
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.time-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.form-group.text-center {
+    margin-top: 20px; /* Tạo khoảng cách giữa trường "Số lượng tối đa" và các nút */
+}
+
+button, a {
+    margin-right: 10px; /* Khoảng cách giữa các nút */
+}
