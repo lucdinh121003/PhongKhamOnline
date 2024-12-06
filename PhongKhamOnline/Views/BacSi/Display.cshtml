@@ -20,10 +20,11 @@
         gap: 5px;
         flex-wrap: wrap;
     }
+
     .box-time {
         background: #000;
         color: #fff;
-        padding:20px;
+        padding: 20px;
     }
 </style>
 <section class="detailt-doctor">
@@ -39,13 +40,7 @@
                     <img class="w-100" src="@Html.DisplayFor(model => model.AnhDaiDien)">
                 </div>
                 <div style="margin-top:20px">
-                    <h2><strong style="text-transform: uppercase;">THẠC SĨ @Html.DisplayFor(model => model.Ten)</strong></h2>
-                    <p>
-                        Học hàm, học vị: Thạc sĩ, Bác sĩ
-                    </p>
-                    <p>
-                        Kinh nghiệm: Trên 30 năm
-                    </p>
+                    <h2><strong style="text-transform: uppercase;"> @Html.DisplayFor(model => model.Ten)</strong></h2>
                     <p>
                         Chức vụ: Chuyên gia
                         @{
@@ -59,7 +54,60 @@
                         }
                         @chuyenMonText
                     </p>
+                    <div>
+                        <strong>Trung Bình Số Sao: </strong>
+                        @if (ViewBag.AverageRating != null)
+                        {
+                            <span>@ViewBag.AverageRating ⭐</span>
+                        }
+                        else
+                        {
+                            <span>Chưa có đánh giá</span>
+                        }
+                    </div>
+                    <div>
+                        <strong>Tổng số đánh giá: </strong>@ViewBag.TotalReviews
+                    </div>
                 </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    if (User.IsInRole("doctor"))
+                    {
+                        <a class="btn btn-booking" asp-area="Doctor" asp-controller="DoctorReview" asp-action="Index" asp-route-bacSiId="@Model.Id">
+                            <span>Đánh giá</span>
+                            <em class="mdi mdi-calendar"></em>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-booking" asp-area="" asp-controller="BNDoctorReview" asp-action="Create" asp-route-bacSiId="@Model.Id">
+                            <span>Đánh giá</span>
+                            <em class="mdi mdi-calendar"></em>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <a class="btn btn-booking" asp-area="Identity" asp-controller="Account" asp-action="Login">
+                        <span>Danh Gia</span>
+                        <em class="mdi mdi-calendar"></em>
+                    </a>
+                }
+
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a class="btn btn-booking" asp-area="" asp-controller="BNDoctorReview" asp-action="Index" asp-route-bacSiId="@Model.Id">
+                        <span> Xem Đánh giá</span>
+                        <em class="mdi mdi-calendar"></em>
+                    </a>
+                }
+                else
+                {
+                    <a class="btn btn-booking" asp-area="Identity" asp-controller="Account" asp-action="Login">
+                        <span>Đánh giá</span>
+                        <em class="mdi mdi-calendar"></em>
+                    </a>
+                }
             </div>
             <div class="col-8">
                 <div>
@@ -81,7 +129,6 @@
                                min="@DateTime.Now.ToString("yyyy-MM-dd")"
                                required />
                     </div>
-
                 </form>
                 <div id="khungGioContainer" class="form-group mt-3">
                     <h4>Khung giờ</h4>
@@ -93,7 +140,8 @@
 </section>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-@* <script>
+
+<script>
     $(document).ready(function () {
         $('#ngayLamViecUser').on('change', function () {
             var ngayLamViecUser = $(this).val();
@@ -126,39 +174,4 @@
             });
         });
     });
-</script> *@
-<script>
-    $('#ngayLamViecUser').on('change', function () {
-        var ngayLamViecUser = $(this).val();
-        var idUser = $('#idUser').val();
-
-        $.ajax({
-            url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
-            type: 'GET',
-            data: { idUser: idUser, ngayLamViec: ngayLamViecUser },
-            success: function (response) {
-                var khungGioList = $('#khungGioList');
-                khungGioList.empty();
-
-                if (response.error) {
-                    khungGioList.append(`<div class="box-time">${response.error}</div>`);
-                    return;
-                }
-
-                if (response.message) {
-                    khungGioList.append(`<div class="box-time">${response.message}</div>`);
-                    return;
-                }
-
-                response.forEach(function (khungGio) {
-                    var checkbox = `<div class="box-time">${khungGio.time}</div>`;
-                    khungGioList.append(checkbox);
-                });
-            },
-            error: function () {
-                alert('Có lỗi xảy ra khi tải dữ liệu khung giờ.');
-            }
-        });
-    });
-
 </script>

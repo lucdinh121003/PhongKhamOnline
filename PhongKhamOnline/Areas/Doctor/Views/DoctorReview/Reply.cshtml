@@ -1,0 +1,19 @@
+﻿@model PhongKhamOnline.Models.DoctorReview
+
+@{
+    ViewData["Title"] = "Phản hồi đánh giá";
+}
+
+<h2>Phản hồi đánh giá</h2>
+
+<p><strong>Đánh giá:</strong> @Model.ReviewText</p>
+<p><strong>Số sao:</strong> @Model.Rating ⭐</p>
+
+<form asp-action="Reply" method="post">
+    <input type="hidden" name="reviewId" value="@Model.Id" />
+    <div class="form-group">
+        <label for="reply">Phản hồi</label>
+        <textarea name="reply" class="form-control" rows="4" required>@Model.Reply</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+</form>

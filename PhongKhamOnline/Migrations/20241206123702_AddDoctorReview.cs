@@ -6,27 +6,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PhongKhamOnline.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLichLamViec : Migration
+    public partial class AddDoctorReview : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "LichLamViecs",
+                name: "doctorReviews",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReviewText = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BacSiId = table.Column<int>(type: "int", nullable: false),
-                    NgayLamViec = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    KhungThoiGianId = table.Column<int>(type: "int", nullable: false), // Thêm cột mới
-                    SoLuongToiDa = table.Column<int>(type: "int", nullable: false)
+                    Reply = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RepliedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LichLamViecs", x => x.Id);
+                    table.PrimaryKey("PK_doctorReviews", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_LichLamViecs_BacSis_BacSiId",
+                        name: "FK_doctorReviews_BacSis_BacSiId",
                         column: x => x.BacSiId,
                         principalTable: "BacSis",
                         principalColumn: "Id",
@@ -34,8 +37,8 @@ namespace PhongKhamOnline.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_LichLamViecs_BacSiId",
-                table: "LichLamViecs",
+                name: "IX_doctorReviews_BacSiId",
+                table: "doctorReviews",
                 column: "BacSiId");
         }
 
@@ -43,7 +46,7 @@ namespace PhongKhamOnline.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "LichLamViecs");
+                name: "doctorReviews");
         }
     }
 }

@@ -9,7 +9,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
 {
     [Area("Doctor")]
     //[Authorize(Roles = "doctor")]
-    
+
     public class LichLamViecDoctorController : Controller
     {
         private readonly ILichLamViecRepository _lichLamViecRepository;
@@ -247,7 +247,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             return View(lichLamViec);
         }
 
-       
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

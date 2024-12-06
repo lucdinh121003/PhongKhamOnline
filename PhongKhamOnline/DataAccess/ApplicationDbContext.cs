@@ -15,5 +15,6 @@ namespace PhongKhamOnline.DataAccess
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<KhungThoiGian> KhungThoiGians { get; set; }
         public DbSet<LichLamViec> LichLamViecs { get; set; }
+        public DbSet<DoctorReview> doctorReviews { get; set; }
     }
 }

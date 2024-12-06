@@ -1,0 +1,23 @@
+﻿@model DoctorReview
+
+<form asp-action="Create" method="post">
+
+    <input type="hidden" name="BacSiId" value="@ViewBag.BacSiId" />
+    <div class="form-group">
+        <label for="Rating">Số sao</label>
+        <select asp-for="Rating" class="form-control" required>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="ReviewText">Nội dung đánh giá</label>
+        <textarea asp-for="ReviewText" class="form-control" rows="4" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+</form>

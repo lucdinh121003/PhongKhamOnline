@@ -129,13 +129,14 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
                             {
                                 return LocalRedirect("~/Admin");
                             }
-                            else if (role == "customer")
+                            else if (role == "doctor")
                             {
-                                return LocalRedirect(returnUrl);
+                                return LocalRedirect("~/Doctor");
                             }
                             else
                             {
-                                return LocalRedirect("~/Doctor");
+                                
+                                return LocalRedirect(returnUrl);
                             }
                         }
                        
