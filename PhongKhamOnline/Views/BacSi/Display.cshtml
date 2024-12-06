@@ -93,7 +93,7 @@
 </section>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
+@* <script>
     $(document).ready(function () {
         $('#ngayLamViecUser').on('change', function () {
             var ngayLamViecUser = $(this).val();
@@ -126,4 +126,39 @@
             });
         });
     });
+</script> *@
+<script>
+    $('#ngayLamViecUser').on('change', function () {
+        var ngayLamViecUser = $(this).val();
+        var idUser = $('#idUser').val();
+
+        $.ajax({
+            url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
+            type: 'GET',
+            data: { idUser: idUser, ngayLamViec: ngayLamViecUser },
+            success: function (response) {
+                var khungGioList = $('#khungGioList');
+                khungGioList.empty();
+
+                if (response.error) {
+                    khungGioList.append(`<div class="box-time">${response.error}</div>`);
+                    return;
+                }
+
+                if (response.message) {
+                    khungGioList.append(`<div class="box-time">${response.message}</div>`);
+                    return;
+                }
+
+                response.forEach(function (khungGio) {
+                    var checkbox = `<div class="box-time">${khungGio.time}</div>`;
+                    khungGioList.append(checkbox);
+                });
+            },
+            error: function () {
+                alert('Có lỗi xảy ra khi tải dữ liệu khung giờ.');
+            }
+        });
+    });
+
 </script>

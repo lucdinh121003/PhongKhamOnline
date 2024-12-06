@@ -8,7 +8,7 @@ using System.Data;
 namespace PhongKhamOnline.Areas.Doctor.Controllers
 {
     [Area("Doctor")]
-    [Authorize(Roles = "doctor")]
+    //[Authorize(Roles = "doctor")]
     
     public class LichLamViecDoctorController : Controller
     {
@@ -51,16 +51,23 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
         }
 
 
-
         [HttpGet]
+        [AllowAnonymous] // Để cho mọi tài khoản truy cập
         public async Task<IActionResult> GetKhungGioDaDat(string idUser, DateTime ngayLamViec)
         {
+            // Tìm bác sĩ dựa trên idUser (idUser có thể là ID của tài khoản hoặc bác sĩ)
             var findBacSi = await _bacSiRepository.GetByUserId(idUser);
+            // Lấy danh sách khung giờ đã đặt
             var existingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(findBacSi.Id, ngayLamViec);
-            var khungGioDaDat = existingSchedules.Select(l => l.KhungThoiGian).ToList();
+            var khungGioDaDat = existingSchedules.Select(l => new
+            {
+                Id = l.KhungThoiGianId,
+                time = l.KhungThoiGian.Time
+            }).ToList();
 
             return Json(khungGioDaDat);
         }
+
 
         public async Task<IActionResult> Create(int bacSiId, DateTime ngayLamViec)
         {
