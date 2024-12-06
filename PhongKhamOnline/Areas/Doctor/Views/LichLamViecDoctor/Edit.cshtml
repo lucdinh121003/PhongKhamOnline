@@ -48,84 +48,8 @@
             }
         </div>
     </div>
-
-    <div class="form-group">
-        <label for="soLuongToiDa">Số lượng tối đa</label>
-        <input type="number" class="form-control" id="soLuongToiDa" name="soLuongToiDa" value="@Model.SoLuongToiDa" required />
-    </div>
-
+    </br>
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
 </form>
 
-@* <form asp-action="Edit" method="post">
-    <input type="hidden" name="id" value="@Model.Id" />
-
-    <div class="form-group">
-        <label for="bacSiId">Bác sĩ</label> *@
-      @*   <select class="form-control" id="bacSiId" name="bacSiId" required>
-            @foreach (var bacSi in ViewBag.BacSiList)
-            {
-                <option value="@bacSi.Id" selected="@(bacSi.Id == Model.BacSiId ? "selected" : null)">@bacSi.Ten</option>
-            }
-        </select *@
-@*             <span>@ViewBag.BacSi.Ten</span>
-    </div>
-
-    <div class="form-group">
-        <label for="ngayLamViec">Ngày làm việc</label>
-        <input type="date" class="form-control" id="ngayLamViec" name="ngayLamViec" value="@Model.NgayLamViec.ToString("yyyy-MM-dd")" required />
-    </div>
-
-    <div class="form-group">
-        <label>khung giờ làm việc</label>
-        <div class="time-grid">
-            @foreach (var khungGio in ViewBag.KhungGio)
-            {
-                <div class="time-item" id="KhungGio">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="khungGios" value="@khungGio.Id" />
-                        <label class="form-check-label">@khungGio.Time</label>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label for="soLuongToiDa">Số lượng tối đa</label>
-        <input type="number" class="form-control" id="soLuongToiDa" name="soLuongToiDa" value="@Model.SoLuongToiDa" required />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Lưu</button>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
-</form> *@
-@* <script>
-    $(document).ready(function () {
-        $('#ngayLamViec').on('change', function () {
-            var ngayLamViec = $(this).val();
-            var bacSiId = $('#bacSiId').val();
-
-            $.ajax({
-                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
-                type: 'GET',
-                data: { bacSiId: bacSiId, ngayLamViec: ngayLamViec },
-                success: function (khungGioDaDat) {
-                    console.log("khungGioDaDat", khungGioDaDat)
-                  
-                },
-                error: function () {
-                    alert('Có lỗi xảy ra khi tải dữ liệu khung giờ.');
-                }
-            });
-        });
-        // Reset tất cả checkbox
-        $('input[name="khungGios"]').prop('disabled', false).prop('checked', false);
-
-        // Vô hiệu hóa các checkbox tương ứng với khung giờ đã được đặt
-        khungGioDaDat.forEach(function (khungGioId) {
-            $('input[name="khungGios"][value="' + khungGioId + '"]').prop('disabled', false).prop('checked', true);
-        });
-    });
-    let KhungGioDaDat = document.getElementById("#KhungGio")
-</script> *@

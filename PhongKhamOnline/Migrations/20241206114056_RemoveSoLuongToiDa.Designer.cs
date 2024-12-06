@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhongKhamOnline.DataAccess;
 
@@ -11,9 +12,11 @@ using PhongKhamOnline.DataAccess;
 namespace PhongKhamOnline.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241206114056_RemoveSoLuongToiDa")]
+    partial class RemoveSoLuongToiDa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -362,44 +365,6 @@ namespace PhongKhamOnline.Migrations
                     b.ToTable("ChuyenMonBacSi");
                 });
 
-            modelBuilder.Entity("PhongKhamOnline.Models.DoctorReview", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BacSiId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("RepliedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Reply")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReviewText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BacSiId");
-
-                    b.ToTable("doctorReviews");
-                });
-
             modelBuilder.Entity("PhongKhamOnline.Models.KhungThoiGian", b =>
                 {
                     b.Property<int>("Id")
@@ -528,17 +493,6 @@ namespace PhongKhamOnline.Migrations
                 {
                     b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
                         .WithMany("AnhDaiDiens")
-                        .HasForeignKey("BacSiId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BacSi");
-                });
-
-            modelBuilder.Entity("PhongKhamOnline.Models.DoctorReview", b =>
-                {
-                    b.HasOne("PhongKhamOnline.Models.BacSi", "BacSi")
-                        .WithMany()
                         .HasForeignKey("BacSiId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

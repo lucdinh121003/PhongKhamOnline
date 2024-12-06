@@ -42,7 +42,6 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                     BacSi = g.Key.Ten,
                     NgayLamViec = g.Key.NgayLamViec,
                     ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time)),
-                    SoLuongToiDa = g.Max(l => l.SoLuongToiDa) // Lấy số lượng tối đa trong nhóm
                 })
                 .ToList();
 
@@ -57,8 +56,16 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
         {
             // Tìm bác sĩ dựa trên idUser (idUser có thể là ID của tài khoản hoặc bác sĩ)
             var findBacSi = await _bacSiRepository.GetByUserId(idUser);
+            if (findBacSi == null)
+            {
+                return Json(new { error = "Không tìm thấy bác sĩ." });
+            }
             // Lấy danh sách khung giờ đã đặt
             var existingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(findBacSi.Id, ngayLamViec);
+            if (existingSchedules == null || !existingSchedules.Any())
+            {
+                return Json(new { message = "Bác sĩ không có lịch rảnh hôm nay." });
+            }
             var khungGioDaDat = existingSchedules.Select(l => new
             {
                 Id = l.KhungThoiGianId,
@@ -132,8 +139,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = findBacSi.Id,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa
+                    KhungThoiGianId = khungGioId
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -142,13 +148,12 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
-            TempData["success"] = "Lịch làm việc đã được thêm thành công.";
+            TempData["SuccessMessage"] = "Lịch làm việc đã được thêm thành công.";
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -218,8 +223,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = lichLamViec.BacSiId,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa
+                    KhungThoiGianId = khungGioId
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -228,12 +232,11 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
             TempData["SuccessMessage"] = "Cập nhật lịch làm việc thành công!";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Edit));
         }
 
         public async Task<IActionResult> Delete(int id)

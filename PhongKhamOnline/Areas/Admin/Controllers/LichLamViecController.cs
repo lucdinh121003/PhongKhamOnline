@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PhongKhamOnline.Models;
 using PhongKhamOnline.Repositories;
@@ -14,11 +15,15 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
     {
         private readonly ILichLamViecRepository _lichLamViecRepository;
         private readonly IBacSiRepository _bacSiRepository;
+        private readonly IKhungThoiGianRepository _khungThoiGianRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LichLamViecController(ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository)
+        public LichLamViecController(ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository, IKhungThoiGianRepository khungThoiGianRepository, UserManager<ApplicationUser> userManager)
         {
             _lichLamViecRepository = lichLamViecRepository;
             _bacSiRepository = bacSiRepository;
+            _khungThoiGianRepository = khungThoiGianRepository;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
@@ -34,8 +39,6 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                     BacSi = g.Key.Ten,
                     NgayLamViec = g.Key.NgayLamViec,
                     ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time)),
-                    
-                    SoLuongToiDa = g.Max(l => l.SoLuongToiDa)  // Lấy số lượng tối đa trong nhóm
                 })
                 .ToList();
 
@@ -43,103 +46,60 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         }
 
 
-
-        public async Task<IActionResult> Create()
+        [HttpGet]
+        [AllowAnonymous] // Để cho mọi tài khoản truy cập
+        public async Task<IActionResult> GetKhungGioDaDat(string idUser, DateTime ngayLamViec)
         {
-            // Lấy danh sách bác sĩ để gắn vào dropdown
-            var bacSiList = await _bacSiRepository.GetAllAsync();
-            ViewBag.BacSiList = bacSiList;
-
-            // Khung giờ mặc định
-            ViewBag.KhungGio = new List<string>
+            // Tìm bác sĩ dựa trên idUser (idUser có thể là ID của tài khoản hoặc bác sĩ)
+            var findBacSi = await _bacSiRepository.GetByUserId(idUser);
+            if (findBacSi == null)
             {
-                "7:00-7:30", "7:30-8:00", "8:00-8:30", "8:30-9:00",
-                "9:00-9:30", "9:30-10:00", "10:00-10:30", "10:30-11:00",
-                "13:30-14:00", "14:00-14:30", "14:30-15:00", "15:00-15:30",
-                "15:30-16:00", "16:00-16:30", "16:30-17:00"
-            };
-
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int bacSiId, DateTime ngayLamViec, List<string> khungGios, int soLuongToiDa)
-        {
-            // Kiểm tra khung giờ rỗng
-            if (khungGios == null || khungGios.Count == 0)
-            {
-                ModelState.AddModelError("", "Bạn cần chọn ít nhất một khung giờ.");
-                return View();
+                return Json(new { error = "Không tìm thấy bác sĩ." });
             }
-
-            // Kiểm tra ngày làm việc hợp lệ
-            if (ngayLamViec.Date < DateTime.Now.Date)
+            // Lấy danh sách khung giờ đã đặt
+            var existingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(findBacSi.Id, ngayLamViec);
+            if (existingSchedules == null || !existingSchedules.Any())
             {
-                ModelState.AddModelError("", "Ngày làm việc không được nằm trong quá khứ.");
-                return View();
+                return Json(new { message = "Bác sĩ không có lịch rảnh hôm nay." });
             }
-
-            // Lấy lịch làm việc hiện tại của bác sĩ trong ngày được chọn
-            var existingSchedules = await _lichLamViecRepository.GetByBacSiAndDateAsync(bacSiId, ngayLamViec);
-
-            foreach (var khungGio in khungGios)
+            var khungGioDaDat = existingSchedules.Select(l => new
             {
-                // Kiểm tra trùng lặp khung giờ
-                //if (existingSchedules.Any(s => s.KhungThoiGian.Time == khungGio))
-                //{
-                //    ModelState.AddModelError("", $"Bác sĩ đã có lịch làm việc trong khung giờ {khungGio}.");
-                //    continue;
-                //}
+                Id = l.KhungThoiGianId,
+                time = l.KhungThoiGian.Time
+            }).ToList();
 
-                // Tạo lịch làm việc mới nếu không trùng lặp
-                var lichLamViec = new LichLamViec
-                {
-                    BacSiId = bacSiId,
-                    NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = Convert.ToInt32(khungGio),
-                    SoLuongToiDa = soLuongToiDa,
-
-                };
-
-                await _lichLamViecRepository.AddAsync(lichLamViec);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                // Nếu có lỗi, giữ lại danh sách bác sĩ và khung giờ để hiển thị lại form
-                var bacSiList = await _bacSiRepository.GetAllAsync();
-                ViewBag.BacSiList = bacSiList;
-                ViewBag.KhungGio = new List<string>
-                {
-                    "7:00-7:30", "7:30-8:00", "8:00-8:30", "8:30-9:00",
-                    "9:00-9:30", "9:30-10:00", "10:00-10:30", "10:30-11:00",
-                    "13:30-14:00", "14:00-14:30", "14:30-15:00", "15:00-15:30",
-                    "15:30-16:00", "16:00-16:30", "16:30-17:00"
-                };
-                return View();
-            }
-
-            TempData["SuccessMessage"] = "Lịch làm việc đã được thêm thành công.";
-            return RedirectToAction(nameof(Index));
-        }
-
-
+            return Json(khungGioDaDat);
+        }     
         public async Task<IActionResult> Edit(int id)
         {
+            // Lấy danh sách tất cả khung giờ
+            var listTime = await _khungThoiGianRepository.GetAllAsync();
+
+            // Lấy lịch làm việc theo ID
             var lichLamViec = await _lichLamViecRepository.GetByIdAsync(id);
+
             if (lichLamViec == null)
             {
                 return NotFound();
             }
 
-            ViewBag.BacSiList = await _bacSiRepository.GetAllAsync();
+            // Lấy thông tin bác sĩ
+            var findBacSi = await _bacSiRepository.GetByIdAsync(lichLamViec.BacSiId);
+
+            // Lấy tất cả khung giờ đã được chọn trong ngày của bác sĩ
+            var existingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(findBacSi.Id, lichLamViec.NgayLamViec);
+            var selectedKhungGios = existingSchedules.Select(l => l.KhungThoiGianId).ToList();
+
+            // Truyền dữ liệu vào ViewBag
+            ViewBag.KhungGio = listTime;
+            ViewBag.SelectedKhungGios = selectedKhungGios;
+            ViewBag.BacSi = findBacSi;
+
             return View(lichLamViec);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DateTime ngayLamViec, string thoiGian, int soLuongToiDa)
+        public async Task<IActionResult> Edit(int id, DateTime ngayLamViec, List<string> khungGios, int soLuongToiDa)
         {
             var lichLamViec = await _lichLamViecRepository.GetByIdAsync(id);
             if (lichLamViec == null)
@@ -147,20 +107,53 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                lichLamViec.NgayLamViec = ngayLamViec;
-                lichLamViec.KhungThoiGianId = Convert.ToInt32(thoiGian);
-                lichLamViec.SoLuongToiDa = soLuongToiDa;
+            // Lấy danh sách lịch làm việc hiện tại của bác sĩ theo ngày
+            var existingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(lichLamViec.BacSiId, ngayLamViec);
+            var existingScheduleDict = existingSchedules.ToDictionary(l => l.KhungThoiGianId);
 
-                await _lichLamViecRepository.UpdateAsync(lichLamViec);
-                return RedirectToAction(nameof(Index));
+            // Danh sách ID khung giờ trong database
+            var existingKhungGioIds = existingScheduleDict.Keys;
+
+            // Danh sách ID khung giờ được gửi lên (convert sang int)
+            var newKhungGioIds = khungGios.Select(int.Parse).ToList();
+
+            // Các khung giờ cần xóa (có trong database nhưng không được gửi lên)
+            var khungGiosToDelete = existingKhungGioIds.Except(newKhungGioIds).ToList();
+
+            // Các khung giờ cần thêm mới (có trong danh sách gửi lên nhưng không có trong database)
+            var khungGiosToAdd = newKhungGioIds.Except(existingKhungGioIds).ToList();
+
+            // Xóa các lịch làm việc không còn trong danh sách gửi lên
+            foreach (var khungGioId in khungGiosToDelete)
+            {
+                var scheduleToDelete = existingScheduleDict[khungGioId];
+                await _lichLamViecRepository.DeleteAsync(scheduleToDelete.Id);
             }
 
-            return View(lichLamViec);
+            // Thêm mới các lịch làm việc
+            foreach (var khungGioId in khungGiosToAdd)
+            {
+                var newSchedule = new LichLamViec
+                {
+                    BacSiId = lichLamViec.BacSiId,
+                    NgayLamViec = ngayLamViec,
+                    KhungThoiGianId = khungGioId
+                };
+                await _lichLamViecRepository.AddAsync(newSchedule);
+            }
+
+            // Cập nhật các lịch làm việc hiện có
+            foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
+            {
+                var existingSchedule = existingScheduleDict[khungGioId];
+                //existingSchedule.SoLuongToiDa = soLuongToiDa;
+                await _lichLamViecRepository.UpdateAsync(existingSchedule);
+            }
+
+            TempData["SuccessMessage"] = "Cập nhật lịch làm việc thành công!";
+            return RedirectToAction(nameof(Edit));
         }
 
-        // GET: LichLamViec/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var lichLamViec = await _lichLamViecRepository.GetByIdAsync(id);
@@ -172,13 +165,13 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
             return View(lichLamViec);
         }
 
-        // POST: LichLamViec/Delete/5
-        [HttpPost, ActionName("Delete")]
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _lichLamViecRepository.DeleteAsync(id);
-            return RedirectToAction(nameof(Index)); // Chuyển hướng về trang danh sách sau khi xóa
+            return RedirectToAction(nameof(Index)); 
         }
     }
 }

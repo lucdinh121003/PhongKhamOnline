@@ -8,7 +8,7 @@ namespace PhongKhamOnline.Models
         public DateTime NgayLamViec { get; set; }
         public KhungThoiGian KhungThoiGian { get; set; }
         public int KhungThoiGianId { get; set; } // Ví dụ: "9:00-9:30"
-        public int SoLuongToiDa { get; set; } // Số bệnh nhân tối đa
+        
         
     }
 }

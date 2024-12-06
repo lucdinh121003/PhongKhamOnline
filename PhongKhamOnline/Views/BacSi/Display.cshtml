@@ -3,30 +3,10 @@
 @{
     ViewData["Title"] = "Display";
 }
-<style>
-    .section-title {
-        font-weight: bold;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+<head>
+    <link rel="stylesheet" href="~/css/hienThiNgayRanh.css">
+</head>
 
-        /* Định dạng cho các thẻ span và em */
-        .section-title h1 {
-            color: #3f51b5;
-        }
-
-    .container-time {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-
-    .box-time {
-        background: #000;
-        color: #fff;
-        padding: 20px;
-    }
-</style>
 <section class="detailt-doctor">
     <div class="container">
         <div class="section-title">
@@ -117,19 +97,17 @@
                     </p>
 
                 </div>
-
-                <form>
                     <input type="hidden" id="idUser" value="@Model.UserId" />
-                    <div class="form-group">
+                    <div class="box-date">
                         <label for="ngayLamViec">Ngày làm việc</label>
                         <input type="date"
                                class="form-control"
                                id="ngayLamViecUser"
                                name="ngayLamViec"
+                               value="@DateTime.Now.ToString("yyyy-MM-dd")"
                                min="@DateTime.Now.ToString("yyyy-MM-dd")"
                                required />
                     </div>
-                </form>
                 <div id="khungGioContainer" class="form-group mt-3">
                     <h4>Khung giờ</h4>
                     <div id="khungGioList" class="container-time"></div>
@@ -140,9 +118,9 @@
 </section>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
     $(document).ready(function () {
+        // Khi thay đổi ngày làm việc
         $('#ngayLamViecUser').on('change', function () {
             var ngayLamViecUser = $(this).val();
             var idUser = $('#idUser').val();
@@ -151,21 +129,23 @@
                 url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
                 type: 'GET',
                 data: { idUser: idUser, ngayLamViec: ngayLamViecUser },
-                success: function (khungGioDaDat) {
-                    console.log("khungGioDaDat", khungGioDaDat)
-                    // Reset tất cả checkbox
+                success: function (response) {
                     var khungGioList = $('#khungGioList');
                     khungGioList.empty();
 
-                    // Tạo checkbox cho mỗi khung giờ
-                    if (khungGioDaDat.length === 0) {
-                        var checkbox = `<div class="">Bác sĩ không có lịch rảnh hôm nay </label`;
-                        khungGioList.append(checkbox);
+                    if (response.error) {
+                        khungGioList.append(`<div>${response.error}</div>`);
                         return;
                     }
-                    khungGioDaDat.forEach(function (khungGio) {
-                        var checkbox = `<div class="box-time" for="khungGio_${khungGio.id}">${khungGio.time}</label`;
-                        khungGioList.append(checkbox);
+
+                    if (response.message) {
+                        khungGioList.append(`<div class="error">${response.message}</div>`);
+                        return;
+                    }
+
+                    response.forEach(function (khungGio) {
+                        var boxTime = `<div class="box-time">${khungGio.time}</div>`;
+                        khungGioList.append(boxTime);
                     });
                 },
                 error: function () {
@@ -173,5 +153,9 @@
                 }
             });
         });
+
+        // Gọi ngay khi load trang với ngày mặc định
+        $('#ngayLamViecUser').trigger('change');
     });
-</script>
+
+ </script>
