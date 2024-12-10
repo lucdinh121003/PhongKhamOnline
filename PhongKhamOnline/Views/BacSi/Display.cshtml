@@ -97,17 +97,17 @@
                     </p>
 
                 </div>
-                    <input type="hidden" id="idUser" value="@Model.UserId" />
-                    <div class="box-date">
-                        <label for="ngayLamViec">Ngày làm việc</label>
-                        <input type="date"
-                               class="form-control"
-                               id="ngayLamViecUser"
-                               name="ngayLamViec"
-                               value="@DateTime.Now.ToString("yyyy-MM-dd")"
-                               min="@DateTime.Now.ToString("yyyy-MM-dd")"
-                               required />
-                    </div>
+                <input type="hidden" id="idUser" value="@Model.UserId" />
+                <div class="box-date">
+                    <label for="ngayLamViec">Ngày làm việc</label>
+                    <input type="date"
+                           class="form-control"
+                           id="ngayLamViecUser"
+                           name="ngayLamViec"
+                           value="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           required />
+                </div>
                 <div id="khungGioContainer" class="form-group mt-3">
                     <h4>Khung giờ</h4>
                     <div id="khungGioList" class="container-time"></div>
@@ -144,7 +144,7 @@
                     }
 
                     response.forEach(function (khungGio) {
-                        var boxTime = `<div class="box-time">${khungGio.time}</div>`;
+                        var boxTime = `<div class="box-time" >${khungGio.time}</div>`;
                         khungGioList.append(boxTime);
                     });
                 },
@@ -158,4 +158,4 @@
         $('#ngayLamViecUser').trigger('change');
     });
 
- </script>
+</script>

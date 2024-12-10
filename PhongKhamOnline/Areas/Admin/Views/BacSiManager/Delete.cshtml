@@ -4,78 +4,107 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xóa Bác Sĩ</title>
+    <link rel="stylesheet" href="~/css/deleteBS.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
 
-<h3>Bạn có chắc chắn muốn xóa bác sĩ @Html.DisplayFor(model => model.Ten) không?</h3>
-<div>
-    
-    <br/ >
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ten)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ten)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ChuyenMonBacSi)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ChuyenMonBacSi)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChiPhongKham)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChiPhongKham)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DiaChiThuongTru)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DiaChiThuongTru)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoaiPhongKham)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoaiPhongKham)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoTa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoTa)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AnhDaiDien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AnhDaiDien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoTaiKhoan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoTaiKhoan)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>
+        header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .row {
+            margin-bottom: 15px;
+        }
+
+            .row dt {
+                font-weight: bold;
+            }
+
+            .row dd {
+                margin-left: 0;
+            }
+
+        .box-button {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-danger {
+            background-color: #d9534f;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .btn-danger:hover {
+                background-color: #c9302c;
+            }
+
+        .btn-secondary {
+            background-color: #f0f0f0;
+            border: none;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+            .btn-secondary:hover {
+                background-color: #e0e0e0;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>Xóa Bác Sĩ</header>
+        <h3>Bạn có chắc chắn muốn xóa bác sĩ <strong>@Html.DisplayFor(model => model.Ten)</strong> không?</h3>
+
+        <dl class="row">
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Ten)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Ten)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.SoDienThoai)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.SoDienThoai)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.ChuyenMonBacSi.TenChuyenMon)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.ChuyenMonBacSi.TenChuyenMon)</dd>
+
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.DiaChiPhongKham)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.DiaChiPhongKham)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Email)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.Email)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(model => model.MoTa)</dt>
+            <dd class="col-sm-8">@Html.DisplayFor(model => model.MoTa)</dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <div class="box-button">
+                <input type="submit" value="Xóa" class="btn btn-danger" />
+                <a asp-action="Index" class="btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

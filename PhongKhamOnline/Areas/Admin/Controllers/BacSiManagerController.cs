@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PhongKhamOnline.Models;
 using PhongKhamOnline.Repositories;
+using System.Data;
 
 namespace PhongKhamOnline.Areas.Admin.Controllers
 {
@@ -37,23 +38,29 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(BacSi product, IFormFile AnhDaiDien)
         {
+            var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
+            ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon");
             if (ModelState.IsValid !=null)
             {
                 if (AnhDaiDien != null)
                 {
                     product.AnhDaiDien = await SaveImage(AnhDaiDien);
                 }
+                if (product.Email == null || product.Email == "")
+                {
+                    return View(product);
+                }
                 var dataUser = await _userManager.FindByEmailAsync(product.Email);
                 if (dataUser == null)
                 {
-                    return NotFound();
+                    ModelState.AddModelError("Email", "Email không khớp với email đăng ký của bác sĩ.");
+                    return View(product);
                 }
                 product.UserId = dataUser.Id;
                 await _BacSiRepository.AddAsync(product);
                 return RedirectToAction(nameof(Index));
             }
-            var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon");
+           
 
             return View(product);
         }
@@ -85,22 +92,52 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         {
             if (id != product.Id)
             {
-                return NotFound();
+                ModelState.AddModelError("", "ID không khớp với thông tin bác sĩ.");
+                return View(product);
+
             }
-            if (ModelState.IsValid !=null ) 
+            var existingBacSi = await _BacSiRepository.GetByIdAsync(id);
+            if (existingBacSi == null)
             {
-                if (AnhDaiDien != null)
-                {
-                    // Lưu hình ảnh đại diện
-                    product.AnhDaiDien = await SaveImage(AnhDaiDien);
-                }
-                await _BacSiRepository.UpdateAsync(product);
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "Không tìm thấy bác sĩ với ID đã cung cấp.");
+                return View(product);
+            }          
+            // Gán ảnh đại diện nếu không thay đổi
+            if (AnhDaiDien != null)
+            {
+                product.AnhDaiDien = await SaveImage(AnhDaiDien);
             }
-            var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
-            ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon", product.ChuyenMonBacSiId);
-            return View(product);
+            else
+            {
+                product.AnhDaiDien = existingBacSi.AnhDaiDien;
+            }
+
+            var dataUser = await _userManager.FindByEmailAsync(product.Email);
+            if (dataUser == null || dataUser.Id != product.UserId)
+            {
+                ModelState.AddModelError("Email", "Email không khớp với email của bác sĩ.");
+                // Lấy lại danh sách chuyên môn
+                var chuyenMons = await _ChuyenMonBacSiRepository.GetAllAsync();
+                ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon", product.ChuyenMonBacSiId);
+                return View(product);
+            }
+
+
+            // Gán giá trị UserId nếu không thay đổi
+            product.UserId = product.UserId ?? existingBacSi.UserId;
+
+           
+
+            // Cập nhật dữ liệu
+            await _BacSiRepository.UpdateAsync(product);
+
+            // Chuyển hướng về Index sau khi lưu thành công
+            return RedirectToAction(nameof(Index));
         }
+
+
+
+
 
         public async Task<IActionResult> Delete(int id)
         {

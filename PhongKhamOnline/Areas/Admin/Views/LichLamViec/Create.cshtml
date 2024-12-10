@@ -1,17 +1,15 @@
 ﻿@model PhongKhamOnline.Models.LichLamViec
 @using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+
 @{
-    var user = await UserManager.GetUserAsync(User);
-}
-@{
-    ViewData["Title"] = "Thêm Lịch Làm Việc";
+    ViewData["Title"] = "Thêm Lịch Làm Việc (Admin)";
 }
 
 @{
     Layout = "_Layout";
 }
+
 <head>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/CreateLichLamViec.css">
@@ -39,15 +37,15 @@
 }
 
 <form asp-action="Create" method="post">
-
     <div class="form-group">
-        <label for="idUser">Bác sĩ  @user.FullName</label>
-        <input type="text"
-               class="form-control"
-               id="idUser"
-               name="idUser"
-               value="@user.Id"
-               style="display: none" />
+        <label for="bacSiId">Chọn bác sĩ</label>
+        <select class="form-control" id="bacSiId" name="bacSiId" required>
+            <option value="">-- Chọn bác sĩ --</option>
+            @foreach (var bacSi in ViewBag.BacSiList)
+            {
+                <option value="@bacSi.Id">@bacSi.Ten</option>
+            }
+        </select>
     </div>
 
     <div class="form-group">
@@ -63,7 +61,7 @@
     <div class="form-group">
         <label>Khung giờ làm việc</label>
         <div class="time-grid">
-            @foreach (var khungGio in ViewBag.KhungGio)
+            @foreach (var khungGio in ViewBag.KhungGioList)
             {
                 <div class="time-item">
                     <div class="form-check">
@@ -81,7 +79,6 @@
         <label for="soLuongToiDa">Số lượng tối đa</label>
         <input type="number" class="form-control" id="soLuongToiDa" name="soLuongToiDa" required />
     </div>
-
     <div class="form-group text-center">
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save"></i> Lưu
@@ -95,23 +92,29 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#ngayLamViec').on('change', function () {
-            var ngayLamViec = $(this).val();
-            var idUser = $('#idUser').val();
+        $('#bacSiId, #ngayLamViec').on('change', function () {
+            var bacSiId = $('#bacSiId').val();
+            var ngayLamViec = $('#ngayLamViec').val();
+
+            if (!bacSiId || !ngayLamViec) {
+                // Nếu chưa chọn bác sĩ hoặc ngày làm việc, reset các checkbox
+                $('input[name="khungGios"]').prop('disabled', false).prop('checked', false);
+                return;
+            }
 
             $.ajax({
-                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
+                url: '/Admin/LichLamViec/GetKhungGioDaDat',
                 type: 'GET',
-                data: { idUser: idUser, ngayLamViec: ngayLamViec },
+                data: { bacSiId: bacSiId, ngayLamViec: ngayLamViec },
                 success: function (khungGioDaDat) {
-                    console.log("khungGioDaDat", khungGioDaDat)
-                   
                     // Reset tất cả checkbox
                     $('input[name="khungGios"]').prop('disabled', false).prop('checked', false);
 
                     // Vô hiệu hóa các checkbox tương ứng với khung giờ đã được đặt
                     khungGioDaDat.forEach(function (khungGio) {
-                        $('input[name="khungGios"][value="' + khungGio.id + '"]').prop('disabled', false).prop('checked', true);
+                        $('input[name="khungGios"][value="' + khungGio.id + '"]')
+                            .prop('disabled', false)
+                            .prop('checked', true);
                     });
                 },
                 error: function () {
@@ -120,4 +123,5 @@
             });
         });
     });
+
 </script>

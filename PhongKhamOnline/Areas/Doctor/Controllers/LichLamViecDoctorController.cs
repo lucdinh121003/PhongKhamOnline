@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 using PhongKhamOnline.Models;
 using PhongKhamOnline.Repositories;
 using System.Data;
@@ -42,6 +43,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                     BacSi = g.Key.Ten,
                     NgayLamViec = g.Key.NgayLamViec,
                     ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time)),
+                    SoLuongToiDa = g.Max(l => l.SoLuongToiDa) // Lấy số lượng tối đa trong nhóm
                 })
                 .ToList();
 
@@ -69,7 +71,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             var khungGioDaDat = existingSchedules.Select(l => new
             {
                 Id = l.KhungThoiGianId,
-                time = l.KhungThoiGian.Time
+                time = l.KhungThoiGian.Time,
+                maxQuantity = l.SoLuongToiDa
             }).ToList();
 
             return Json(khungGioDaDat);
@@ -94,7 +97,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             var newDate = DateTime.Now;
             if (ngayLamViec <= newDate)
             {
-                ModelState.AddModelError("KhungGios", "Vui lòng không chọn ngày đã qua.");
+                ModelState.AddModelError("NgayLamViec", "Vui lòng không chọn ngày đã qua.");
                 return View();
             }
             // Kiểm tra khung giờ rỗng
@@ -139,7 +142,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = findBacSi.Id,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId
+                    KhungThoiGianId = khungGioId,
+                    SoLuongToiDa = soLuongToiDa
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -148,6 +152,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
+                existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -223,7 +228,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = lichLamViec.BacSiId,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId
+                    KhungThoiGianId = khungGioId,
+                    SoLuongToiDa = soLuongToiDa
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -232,6 +238,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
+                existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -251,12 +258,132 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _lichLamViecRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index)); // Chuyển hướng về trang danh sách sau khi xóa
+        }
+        public IActionResult CreateByFile()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadFile(IFormFile file, string idUser)
+        {
+
+            if (file == null || file.Length == 0)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn file Excel.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                var currentUserEmail = currentUser.Email; // lấy email của user hiện tại
+
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var stream = new MemoryStream())
+                {
+                    file.CopyTo(stream);
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Lấy sheet đầu tiên
+                        int rowCount = worksheet.Dimension.Rows; // Số dòng
+                        int colCount = worksheet.Dimension.Columns; // Số cột
+                        bool hasErrorOccurred = false; // Biến flag để theo dõi lỗi
+                        bool isAnyScheduleAdded = false; // Biến flag để theo dõi xem có lịch làm việc nào được thêm không
+                        var khungThoiGianList = await _khungThoiGianRepository.GetAllAsync();
+
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            var bacSiName = worksheet.Cells[row, 1].Text.Trim();
+                            var email = worksheet.Cells[row, 2].Text.Trim();
+                            var ngayLamViecText = worksheet.Cells[row, 3].Text.Trim();
+                            var thoiGianText = worksheet.Cells[row, 4].Text.Trim();
+                            var soLuongToiDaText = worksheet.Cells[row, 5].Text.Trim();
+                            var bacSi = await _bacSiRepository.GetByEmail(email);
+                            if (bacSi == null)
+                            {
+                                TempData["ErrorMessage"] += $"Không tìm thấy email bác sĩ: {email} ở dòng {row}. <br>";
+                                continue;
+                            }
+
+                            // Kiểm tra email trong tệp có khớp với email của người đăng nhập không
+                            if (!string.Equals(email, currentUserEmail, StringComparison.OrdinalIgnoreCase))
+                            {
+                                TempData["ErrorMessage"] += $"Email {email} ở dòng {row} không khớp với email tài khoản đăng nhập. <br>";
+                                continue;
+                            }
+
+
+                            if (!DateTime.TryParse(ngayLamViecText, out var ngayLamViec))
+                            {
+                                TempData["ErrorMessage"] += $"Ngày làm việc không hợp lệ ở dòng {row}. <br>";
+                                continue;
+                            }
+
+                            // Kiểm tra nếu ngày làm việc là quá khứ
+                            if (ngayLamViec.Date < DateTime.Now.Date)
+                            {
+                                TempData["ErrorMessage"] += $"Ngày làm việc {ngayLamViec:dd/MM/yyyy} ở dòng {row} là ngày trong quá khứ. <br>";
+                                continue;
+                            }
+
+                            // Tách các khung giờ
+                            var khungThoiGianTexts = thoiGianText.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                                                .Select(t => t.Trim());
+                            foreach (var khungGio in khungThoiGianTexts)
+                            {
+                                var khungThoiGian = khungThoiGianList.FirstOrDefault(ktg => ktg.Time == khungGio);
+                                if (khungThoiGian == null)
+                                {
+                                    TempData["ErrorMessage"] += $"Không tìm thấy khung thời gian: {khungGio} ở dòng {row}. <br>";
+                                    continue;
+                                }
+
+                                // Kiểm tra lịch làm việc đã tồn tại
+                                bool isScheduleExists = await _lichLamViecRepository.GetLichDaTonTai(bacSi.Id, ngayLamViec, khungThoiGian.Id);
+                                if (isScheduleExists)
+                                {
+                                    TempData["ErrorMessage"] += $"Lịch làm việc đã tồn tại cho bác sĩ {bacSi.Ten} vào ngày {ngayLamViec:dd/MM/yyyy} tại khung giờ {khungGio} dòng {row}. <br>";
+                                    continue;
+                                }
+
+                                var newSchedule = new LichLamViec
+                                {
+                                    BacSiId = bacSi.Id,
+                                    NgayLamViec = ngayLamViec,
+                                    KhungThoiGianId = khungThoiGian.Id,
+                                    SoLuongToiDa = Convert.ToInt32(soLuongToiDaText)
+                                };
+
+                                await _lichLamViecRepository.AddAsync(newSchedule);
+                                // Đánh dấu là có lịch làm việc được thêm
+                                isAnyScheduleAdded = true;
+                                TempData["SuccessMessage"] += $"Lịch làm việc ngày {ngayLamViec:dd/MM/yyyy} khung giờ {khungGio} được thêm thành công.<br>";
+                            }
+                        }
+                        // Kiểm tra và chỉ hiển thị thông báo thành công tổng thể khi không có lỗi và ít nhất một lịch làm việc được thêm
+                        if (!hasErrorOccurred && isAnyScheduleAdded)
+                        {
+                            TempData["SuccessMessage"] += "Tải lên file Excel thành công.";
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Có lỗi xảy ra: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(CreateByFile));
         }
     }
 }

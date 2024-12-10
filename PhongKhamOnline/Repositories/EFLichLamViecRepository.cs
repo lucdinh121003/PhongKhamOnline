@@ -80,5 +80,13 @@ namespace PhongKhamOnline.Repositories
                 .Where(l => l.BacSiId == bacSiId)
                 .ToListAsync();
         }
+
+        public async Task<bool> GetLichDaTonTai(int bacSiId, DateTime ngayLamViec, int khungThoiGianId)
+        {
+            return await _context.LichLamViecs
+                                             .AnyAsync(l => l.BacSiId == bacSiId
+                                             && l.NgayLamViec == ngayLamViec
+                                             && l.KhungThoiGianId == khungThoiGianId);
+        }
     }
 }

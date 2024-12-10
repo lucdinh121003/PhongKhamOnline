@@ -41,8 +41,10 @@ namespace PhongKhamOnline.Repositories
         public async Task<BacSi> GetByIdAsync(int id)
         {
             return await _context.BacSis
-                                         .Include(p => p.ChuyenMonBacSi)  // Đảm bảo có thể truy cập ChuyenMonBacSi
-                                         .FirstOrDefaultAsync(p => p.Id == id);
+                                 .Include(p => p.ChuyenMonBacSi)
+                                 .Include(p => p.User)
+                                 .AsNoTracking()  // Ngừng theo dõi đối tượng
+                                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         // Thêm phương thức GetBySpecialtyAsync
@@ -79,6 +81,10 @@ namespace PhongKhamOnline.Repositories
         public async Task<BacSi> GetByUserId(string userId)
         {
             return await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
+        }
+        public async Task<BacSi> GetByEmail(string email)
+        {
+            return await _context.BacSis.FirstOrDefaultAsync(b => b.Email == email);
         }
     }
 }

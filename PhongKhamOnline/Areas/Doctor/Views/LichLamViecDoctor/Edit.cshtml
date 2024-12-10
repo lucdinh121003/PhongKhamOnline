@@ -19,7 +19,9 @@
         @TempData["SuccessMessage"]
     </div>
 }
-
+<div class="doctor-name">
+    <label><strong>Bác sĩ:</strong> @ViewBag.BacSi.Ten</label>
+</div>
 
 <form asp-action="Edit" method="post">
     <input type="hidden" name="id" value="@Model.Id" />
@@ -48,7 +50,12 @@
             }
         </div>
     </div>
-    </br>
+
+    <div class="form-group">
+        <label for="soLuongToiDa">Số lượng tối đa</label>
+        <input type="number" class="form-control" id="soLuongToiDa" name="soLuongToiDa" value="@Model.SoLuongToiDa" required />
+    </div>
+
     <button type="submit" class="btn btn-primary">Lưu</button>
     <a href="@Url.Action("Index")" class="btn btn-secondary">Hủy</a>
 </form>

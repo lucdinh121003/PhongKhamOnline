@@ -13,6 +13,8 @@ namespace PhongKhamOnline.Repositories
         Task UpdateAsync(BacSi bacSi);
         Task DeleteAsync(int id);
         Task<BacSi> GetByUserId(string userId);
+
+        Task<BacSi> GetByEmail(string email);
     }
 
 }

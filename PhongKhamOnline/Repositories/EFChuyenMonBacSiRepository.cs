@@ -39,8 +39,11 @@ namespace PhongKhamOnline.Repositories
         public async Task DeleteAsync(int id)
         {
             var chuyenMonBacSi = await _context.ChuyenMonBacSi.FindAsync(id);
-            _context.ChuyenMonBacSi.Remove(chuyenMonBacSi);
-            await _context.SaveChangesAsync();
+            if(chuyenMonBacSi != null)
+            {
+                _context.ChuyenMonBacSi.Remove(chuyenMonBacSi);
+                await _context.SaveChangesAsync();
+            }          
         }
     }
 }

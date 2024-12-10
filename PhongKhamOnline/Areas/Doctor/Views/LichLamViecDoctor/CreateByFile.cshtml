@@ -1,0 +1,44 @@
+﻿@model PhongKhamOnline.Models.LichLamViec
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+@{
+    ViewData["Title"] = "Create by File";
+}
+
+@{
+    Layout = "_Layout";
+}
+
+
+<h2>@ViewData["Title"]</h2>
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @Html.Raw(TempData["SuccessMessage"])
+
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @Html.Raw(TempData["ErrorMessage"])
+    </div>
+}
+<form asp-action="UploadFile" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Chọn file Excel</label>
+        <input type="file" class="form-control" id="file" name="file" accept=".xlsx" required />
+    </div>
+    <br />
+    <div class="form-group text-center">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Tải lên
+        </button>
+    </div>
+</form>

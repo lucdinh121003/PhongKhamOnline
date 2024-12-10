@@ -434,6 +434,9 @@ namespace PhongKhamOnline.Migrations
                     b.Property<DateTime>("NgayLamViec")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("SoLuongToiDa")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BacSiId");

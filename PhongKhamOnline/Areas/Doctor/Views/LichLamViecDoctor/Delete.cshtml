@@ -33,12 +33,13 @@
     <strong>Cảnh báo!</strong> Bạn đang cố gắng xóa lịch làm việc của bác sĩ:
     <strong>@Model.BacSi.Ten</strong> vào ngày:
     <strong>@Model.NgayLamViec.ToString("dd/MM/yyyy")</strong> trong khung giờ:
-    <strong>@Model.KhungThoiGian.Time</strong>.
+    <strong>@Model.KhungThoiGian.Time</strong> số lượng bệnh nhân tối đa:
+    <strong>@Model.SoLuongToiDa</strong>.
     <br />
     Bạn có chắc chắn muốn xóa lịch làm việc này không?
 </div>
 
-<form asp-action="DeleteConfirmed" method="post">
+<form asp-action="Delete" method="post">
     <input type="hidden" name="id" value="@Model.Id" />
     <div class="form-group">
         <button type="submit" class="btn btn-danger">Xóa</button>
