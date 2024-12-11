@@ -1,0 +1,40 @@
+﻿@model IEnumerable<PhongKhamOnline.Models.Appointment>
+
+<h2>Danh sách lịch khám</h2>
+
+<form method="get" asp-action="Index" class="form-inline mb-3">
+    <label for="selectedDate">Chọn ngày:</label>
+    <input type="date" id="selectedDate" name="selectedDate" class="form-control ml-2" />
+    <button type="submit" class="btn btn-primary ml-2">Lọc</button>
+</form>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày khám</th>
+            <th>Giờ</th>
+            <th>Bác sĩ</th>
+            <th>Tình trạng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
+                    <td>@appointment.KhungThoiGian.Time</td>
+                    <td>@appointment.BacSi.Ten</td>
+                    <td>@appointment.Status</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">Không tìm thấy lịch khám cho ngày này.</td>
+            </tr>
+        }
+    </tbody>
+</table>

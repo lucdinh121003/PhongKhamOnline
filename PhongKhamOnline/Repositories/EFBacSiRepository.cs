@@ -80,5 +80,11 @@ namespace PhongKhamOnline.Repositories
         {
             return await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
         }
+
+        public async Task<BacSi> GetByUserIdAsync(string userId)
+        {
+            return await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
+        }
+
     }
 }

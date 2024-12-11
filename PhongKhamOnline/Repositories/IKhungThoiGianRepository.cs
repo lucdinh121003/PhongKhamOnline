@@ -6,6 +6,5 @@ namespace PhongKhamOnline.Repositories
     {
         Task<IEnumerable<KhungThoiGian>> GetAllAsync();
         Task<KhungThoiGian> GetById(int id);
-
     }
 }

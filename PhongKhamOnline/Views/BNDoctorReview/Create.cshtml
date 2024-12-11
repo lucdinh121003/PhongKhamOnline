@@ -1,23 +1,26 @@
 ﻿@model DoctorReview
 
-<form asp-action="Create" method="post">
+<div class="container mt-4">
+    <h2 class="text-center">Gửi Đánh Giá</h2>
+    <form asp-action="Create" method="post" class="shadow p-4 rounded bg-light">
+        <input type="hidden" name="BacSiId" value="@ViewBag.BacSiId" />
 
-    <input type="hidden" name="BacSiId" value="@ViewBag.BacSiId" />
-    <div class="form-group">
-        <label for="Rating">Số sao</label>
-        <select asp-for="Rating" class="form-control" required>
-            <option value="5">⭐⭐⭐⭐⭐</option>
-            <option value="4">⭐⭐⭐⭐</option>
-            <option value="3">⭐⭐⭐</option>
-            <option value="2">⭐⭐</option>
-            <option value="1">⭐</option>
-        </select>
-    </div>
+        <div class="mb-3">
+            <label for="Rating" class="form-label">Số sao:</label>
+            <select asp-for="Rating" class="form-select" required>
+                <option value="5">⭐⭐⭐⭐⭐ (Xuất sắc)</option>
+                <option value="4">⭐⭐⭐⭐ (Tốt)</option>
+                <option value="3">⭐⭐⭐ (Khá)</option>
+                <option value="2">⭐⭐ (Trung bình)</option>
+                <option value="1">⭐ (Kém)</option>
+            </select>
+        </div>
 
-    <div class="form-group">
-        <label for="ReviewText">Nội dung đánh giá</label>
-        <textarea asp-for="ReviewText" class="form-control" rows="4" required></textarea>
-    </div>
+        <div class="mb-3">
+            <label for="ReviewText" class="form-label">Nội dung đánh giá:</label>
+            <textarea asp-for="ReviewText" class="form-control" rows="4" placeholder="Viết nội dung đánh giá của bạn tại đây..." required></textarea>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
-</form>
+        <button type="submit" class="btn btn-primary w-100">Gửi đánh giá</button>
+    </form>
+</div>

@@ -1,0 +1,72 @@
+﻿@model PhongKhamOnline.Models.DoctorReview
+
+@{
+    ViewData["Title"] = "Phản hồi đánh giá";
+}
+
+<style>
+    .feedback-container {
+        max-width: 600px;
+        margin: 30px auto;
+        background: #ffffff;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+        .feedback-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .feedback-container p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .btn-submit {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<div class="feedback-container">
+    <h2>Phản hồi đánh giá</h2>
+    <p><strong>Đánh giá:</strong> @Model.ReviewText</p>
+    <p><strong>Số sao:</strong> @Model.Rating ⭐</p>
+
+    <form asp-action="Reply" method="post">
+        <input type="hidden" name="reviewId" value="@Model.Id" />
+        <div class="form-group">
+            <label for="reply">Phản hồi của bạn:</label>
+            <textarea name="reply" class="form-control" rows="5" placeholder="Nhập nội dung phản hồi..." required>@Model.Reply</textarea>
+        </div>
+        <button type="submit" class="btn-submit">Gửi phản hồi</button>
+    </form>
+</div>

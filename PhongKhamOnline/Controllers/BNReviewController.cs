@@ -23,6 +23,8 @@ namespace PhongKhamOnline.Controllers
         // Lấy danh sách đánh giá của bác sĩ (theo ID bác sĩ)
         public IActionResult Index(int bacSiId)
         {
+            // Lấy UserId của người dùng đang đăng nhập
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             // Lọc danh sách đánh giá chỉ thuộc về bác sĩ được chọn
             var reviews = _context.doctorReviews
                           .Include(r => r.BacSi) // Tải thông tin bác sĩ liên quan
@@ -74,10 +76,32 @@ namespace PhongKhamOnline.Controllers
                 review.RepliedAt = null;
                 _context.doctorReviews.Add(review); // Thêm đánh giá vào DbContext
                 _context.SaveChanges();// Lưu thay đổi vào database
-                return RedirectToAction("Index"); // Quay lại danh sách đánh giá
+                return RedirectToAction("ReviewHistory"); // Quay lại danh sách đánh giá
             }
             ViewBag.BacSis = new SelectList(_context.BacSis, "Id", "Ten", review.BacSiId);
             return View(review);
         }
+
+        public IActionResult ReviewHistory()
+        {
+            // Lấy UserId của người dùng đang đăng nhập
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Kiểm tra nếu người dùng chưa đăng nhập
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return Unauthorized("Bạn cần đăng nhập để xem lịch sử đánh giá.");
+            }
+
+            // Lấy danh sách đánh giá của người dùng hiện tại
+            var reviews = _context.doctorReviews
+                          .Include(r => r.BacSi) // Bao gồm thông tin bác sĩ
+                          .Where(r => r.UserId == currentUserId) // Lọc theo UserId
+                          .ToList();
+
+            // Trả danh sách đánh giá về View
+            return View(reviews);
+        }
+
     }
 }

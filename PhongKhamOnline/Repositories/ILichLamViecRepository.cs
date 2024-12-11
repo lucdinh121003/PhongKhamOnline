@@ -16,5 +16,6 @@ namespace PhongKhamOnline.Repositories
         Task<IEnumerable<LichLamViec>> getListLichLamViecById(int id);
 
         Task<List<LichLamViec>> GetByBacSiIdAsync(int bacSiId);
+
     }
 }

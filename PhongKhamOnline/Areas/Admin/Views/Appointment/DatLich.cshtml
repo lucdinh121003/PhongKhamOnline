@@ -1,0 +1,40 @@
+﻿@model PhongKhamOnline.Models.Appointment
+
+@{
+    ViewData["Title"] = "Xác nhận lịch hẹn";
+}
+
+<h1>Xác nhận lịch hẹn</h1>
+
+<form asp-action="DatLich" method="post">
+    <input type="hidden" asp-for="NgayKham" />
+    <input type="hidden" asp-for="KhungThoiGianId" />
+    <input type="hidden" asp-for="BacSiId" />
+
+    <div class="form-group">
+        <label for="PatientName">Họ tên bệnh nhân:</label>
+        <input asp-for="PatientName" class="form-control" placeholder="Nhập họ tên bệnh nhân" required />
+    </div>
+
+    <div class="form-group">
+        <label for="LyDo">Lý do khám:</label>
+        <textarea asp-for="LyDo" class="form-control" placeholder="Nhập lý do khám" rows="3" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Bác sĩ:</label>
+        <input type="text" class="form-control" value="@Model.BacSi?.Ten " Không xác định"" disabled />
+    </div>
+
+    <div class="form-group">
+        <label>Ngày khám:</label>
+        <input type="text" class="form-control" value="@Model.NgayKham.ToString("dd/MM/yyyy")" disabled />
+    </div>
+
+    <div class="form-group">
+        <label>Khung giờ:</label>
+        <input type="text" class="form-control" value="@Model.KhungThoiGian?.Time  " Không xác định"" disabled />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Xác nhận</button>
+</form>

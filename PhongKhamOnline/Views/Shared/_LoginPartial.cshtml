@@ -5,44 +5,105 @@
 @{
     var user = await UserManager.GetUserAsync(User);
 }
-<ul class="navbar-nav">
+
+<style>
+    /* Chung cho menu điều hướng */
+    .navbar-nav.menu-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-item {
+        margin: 0 5px;
+    }
+
+    .btn-menu {
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        /* Hover effect */
+        .btn-menu:hover {
+            background-color: #e0e0e0;
+        }
+
+    /* Dropdown menu styles */
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        display: none;
+        min-width: 150px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        list-style: none;
+        padding: 5px 0;
+        border: 1px solid #ddd;
+    }
+
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 8px 12px;
+        text-decoration: none;
+        color: #333;
+        display: block;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+</style>
+<ul class="navbar-nav menu-container">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Xin Chào @user.FullName</a>
+            <a id="manage" class="nav-link text-dark btn-menu" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Xin Chào @user.FullName</a>
         </li>
-        <li class="nav-item">
-            @if (User.IsInRole("admin"))
-            {
-                <a id="manage" class="nav-link text-dark" asp-area="Admin" asp-controller="BacSiManager" asp-action="Index"> Admin </a>
-            }
-        </li>
-        <li class="nav-item">
-            @if (User.IsInRole("doctor"))
-            {
-                <a id="manage" class="nav-link text-dark" asp-area="Doctor" asp-controller="LichLamViecDoctor" asp-action="Index">Lịch Làm Việc</a>
-            }
-        </li>
+        @if (User.IsInRole("admin"))
+        {
+            <li class="nav-item">
+                <a id="admin" class="nav-link text-dark btn-menu" asp-area="Admin" asp-controller="BacSiManager" asp-action="Index">Admin</a>
+            </li>
+        }
+        @if (User.IsInRole("doctor"))
+        {
+            <li class="nav-item">
+                <a id="doctor-work" class="nav-link text-dark btn-menu" asp-area="Doctor" asp-controller="" asp-action="">Lịch Làm Việc</a>
+            </li>
+        }
+        @if (!User.IsInRole("doctor") && !User.IsInRole("admin"))
+        {
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link text-dark btn-menu dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">Lịch sử</a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/BNDoctorReview/ReviewHistory">Đánh giá</a></li>
+                    <li><a class="dropdown-item" href="/BNAppointment">Đặt Lịch</a></li>
+                </ul>
+            </li>
+        }
 
         <li class="nav-item">
-            @if (User.IsInRole("doctor"))
-            {
-                <a id="manage" class="nav-link text-dark" asp-area="Doctor" asp-controller="DoctorReview" asp-action="Index">Lịch Làm Việc</a>
-            }
-        </li>
-        <li class="nav-item">
             <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+                <button id="logout" type="submit" class="nav-link btn btn-link text-dark btn-menu border-0">Logout</button>
             </form>
         </li>
     }
     else
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Đăng Ký</a>
+            <a class="nav-link text-dark btn-menu" id="register" asp-area="Identity" asp-page="/Account/Register">Đăng Ký</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Đăng Nhập</a>
+            <a class="nav-link text-dark btn-menu" id="login" asp-area="Identity" asp-page="/Account/Login">Đăng Nhập</a>
         </li>
     }
 </ul>

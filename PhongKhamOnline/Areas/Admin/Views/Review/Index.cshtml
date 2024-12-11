@@ -1,0 +1,146 @@
+﻿@using System.Security.Claims
+@model List<DoctorReview>
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var user = await UserManager.GetUserAsync(User); // Lấy thông tin người dùng hiện tại
+}
+
+<style>
+    .table-container {
+        max-width: 90%;
+        margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .table-striped tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #a71d2a;
+        }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d;
+    }
+</style>
+
+<div class="table-container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Tên Bác Sĩ</th>
+                <th>Đánh giá</th>
+                <th>Nội dung</th>
+                <th>Phản hồi</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var review in Model)
+                {
+                    <tr>
+                        <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>@review.BacSi?.Ten</td>
+                        <td>
+                            @for (int i = 0; i < review.Rating; i++)
+                            {
+                                <i class="fas fa-star text-warning"></i>
+                            }
+                            @for (int i = review.Rating; i < 5; i++)
+                            {
+                                <i class="fas fa-star text-muted"></i>
+                            }
+                        </td>
+                        <td>@review.ReviewText</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(review.Reply))
+                            {
+                                <p>@review.Reply</p>
+                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa có phản hồi</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (string.IsNullOrEmpty(review.Reply) && User.IsInRole("doctor"))
+                                {
+                                    <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-primary btn-sm">Phản hồi</a>
+                                }
+                                @if (User.IsInRole("admin") || (user?.Id == review.BacSi?.UserId))
+                                {
+                                    <form asp-action="DeleteReview" asp-route-id="@review.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Không có đánh giá nào.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

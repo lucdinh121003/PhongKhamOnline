@@ -10,5 +10,6 @@
 
         // Chuyên môn đã chọn
         public int SelectedSpecialtyId { get; set; }
+
     }
 }
