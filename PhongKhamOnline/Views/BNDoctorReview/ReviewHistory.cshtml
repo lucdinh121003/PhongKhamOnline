@@ -1,0 +1,96 @@
+﻿@model List<DoctorReview>
+@{
+    ViewBag.Title = "Lịch sử đánh giá của bạn";
+}
+
+<style>
+    .history-container {
+        width: 80%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .empty-message {
+        text-align: center;
+        color: #6c757d;
+        font-size: 1.2rem;
+        margin-top: 20px;
+    }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d;
+    }
+</style>
+
+<div class="history-container">
+    <h2 class="text-center">@ViewBag.Title</h2>
+
+    @if (!Model.Any())
+    {
+        <p class="empty-message">Bạn chưa có bất kỳ đánh giá nào.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Ngày đánh giá</th>
+                    <th>Tên bác sĩ</th>
+                    <th>Đánh giá</th>
+                    <th>Nội dung</th>
+                    <th>Phản hồi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var review in Model)
+                {
+                    <tr>
+                        <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>@review.BacSi.Ten</td>
+                        <td>@review.Rating ⭐</td>
+                        <td>@review.ReviewText</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(review.Reply))
+                            {
+                                <div>
+                                    <p>@review.Reply</p>
+                                    <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa có phản hồi</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

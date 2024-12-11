@@ -22,22 +22,41 @@ namespace PhongKhamOnline.Controllers
         }
 
         // Lấy danh sách đánh giá của bác sĩ (theo ID bác sĩ)
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Kiểm tra vai trò của người dùng
+            var isAdmin = User.IsInRole("admin");
+
             List<DoctorReview> reviews;
 
-            if (User.IsInRole("admin") || User.IsInRole("doctor"))
+            if (isAdmin)
             {
-                reviews = _context.doctorReviews.Include(a => a.BacSi).ToList();
+                // Nếu là Admin, lấy tất cả các đánh giá
+                reviews = await _context.doctorReviews
+                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
+                                        .ToListAsync();
             }
             else
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                reviews = _context.doctorReviews.Include(a => a.BacSi).Where(a => a.UserId == userId).ToList();
+                // Tìm Id của bác sĩ liên kết với UserId
+                var bacSi = await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
+                if (bacSi == null)
+                {
+                    return NotFound("Không tìm thấy bác sĩ liên kết với tài khoản này.");
+                }
+
+                // Lấy danh sách đánh giá chỉ thuộc về bác sĩ này
+                reviews = await _context.doctorReviews
+                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
+                                        .Where(r => r.BacSiId == bacSi.Id)
+                                        .ToListAsync();
             }
+
+            // Truyền danh sách đánh giá vào View
             return View(reviews);
         }
-
 
 
         public IActionResult Reply(int reviewId)

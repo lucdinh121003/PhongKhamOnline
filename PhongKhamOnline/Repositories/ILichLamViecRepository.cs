@@ -17,5 +17,6 @@ namespace PhongKhamOnline.Repositories
 
         Task<List<LichLamViec>> GetByBacSiIdAsync(int bacSiId);
         Task<bool> GetLichDaTonTai(int bacSiId, DateTime ngayLamViec, int khungThoiGianId);
+
     }
 }

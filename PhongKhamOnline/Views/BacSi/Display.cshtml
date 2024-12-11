@@ -1,12 +1,43 @@
 ﻿@model PhongKhamOnline.Models.BacSi
+@using Microsoft.AspNetCore.Identity
 
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
 @{
     ViewData["Title"] = "Display";
 }
-<head>
+@* <head>
     <link rel="stylesheet" href="~/css/hienThiNgayRanh.css">
-</head>
+</head> *@
 
+
+<style>
+    .section-title {
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    }
+
+    /* Định dạng cho các thẻ span và em */
+    .section-title h1 {
+    color: #3f51b5;
+    }
+
+    .container-time {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    }
+
+    .box-time {
+    background: #000;
+    color: #fff;
+    padding: 20px;
+    }
+</style>
 <section class="detailt-doctor">
     <div class="container">
         <div class="section-title">
@@ -97,6 +128,7 @@
                     </p>
 
                 </div>
+<<<<<<< HEAD
                 <input type="hidden" id="idUser" value="@Model.UserId" />
                 <div class="box-date">
                     <label for="ngayLamViec">Ngày làm việc</label>
@@ -159,3 +191,85 @@
     });
 
 </script>
+=======
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <form>
+                        <!-- Truyền giá trị ID của người dùng (ẩn) -->
+                        <input type="hidden" id="idUser" value="@Model.UserId" />
+                        <input type="hidden" id="idBacSi" value="@Model.Id" />
+
+
+                        <!-- Chọn ngày làm việc -->
+                        <div class="form-group">
+                            <label for="ngayLamViecUser">Ngày làm việc</label>
+                            <input type="date"
+                            class="form-control"
+                            id="ngayLamViecUser"
+                            name="ngayLamViec"
+                            min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                            required />
+                        </div>
+                    </form>
+
+                    <!-- Danh sách khung giờ -->
+                    <div id="khungGioContainer" class="form-group mt-3">
+                        <h4>Khung giờ</h4>
+                        <div id="khungGioList" class="container-time"></div>
+                    </div>
+                }
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                <script>
+                    $(document).ready(function () {
+                        // Khi người dùng chọn ngày
+                        $('#ngayLamViecUser').on('change', function () {
+                            var ngayLamViec = $(this).val(); // Lấy ngày làm việc
+                            var idUser = $('#idUser').val(); // Lấy ID người dùng
+
+                            // Gửi yêu cầu AJAX lấy danh sách khung giờ
+                            $.ajax({
+                                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
+                                type: 'GET',
+                                data: { idUser: idUser, ngayLamViec: ngayLamViec },
+                                success: function (data) {
+                                    var khungGioList = $('#khungGioList'); // Khu vực chứa khung giờ
+                                    khungGioList.empty(); // Xóa các nội dung cũ
+
+                                    if (data.length === 0) {
+                                        // Nếu không có khung giờ, hiển thị thông báo
+                                        khungGioList.append('<p class="text-muted">Không có khung giờ khả dụng cho ngày này.</p>');
+                                        return;
+                                    }
+
+                                    // Hiển thị danh sách khung giờ với ID làm giá trị
+                                    data.forEach(function (item) {
+                                        var radioButton = `
+                                            <div class="box-time">
+                                                <input type="radio" id="khungGio_${item.id}" name="selectedTimeId" value="${item.id}">
+                                                <label for="khungGio_${item.id}">${item.time}</label>
+                                            </div>`;
+                                        khungGioList.append(radioButton);
+                                    });
+
+                                    // Khi người dùng chọn khung giờ
+                                    $('input[name="selectedTimeId"]').on('change', function () {
+                                        var selectedTimeId = $(this).val(); // Lấy ID khung giờ đã chọn
+                                        var selectedDate = $('#ngayLamViecUser').val(); // Lấy ngày làm việc
+                                        var idBacSi = $('#idBacSi').val(); // Lấy ID của bác sĩ
+
+                                        // Chuyển hướng tới trang đặt lịch với ID của khung giờ
+                                        window.location.href = `/BNAppointment/DatLich?ngay=${selectedDate}&timeId=${selectedTimeId}&idBacSi=${idBacSi}`;
+                                    });
+                                },
+                                error: function () {
+                                    alert('Có lỗi xảy ra khi tải danh sách khung giờ.');
+                                }
+                            });
+                        });
+                    });
+                </script>
+
+
+
+>>>>>>> Luc

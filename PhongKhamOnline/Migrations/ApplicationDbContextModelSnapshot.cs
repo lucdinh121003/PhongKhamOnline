@@ -235,15 +235,21 @@ namespace PhongKhamOnline.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
 
-                    b.Property<DateTime>("AppointmentDate")
+                    b.Property<int>("BacSiId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("AppointmentTimeSlot")
+                    b.Property<int>("KhungThoiGianId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LyDo")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BacSiId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("NgayKham")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PatientName")
                         .IsRequired()
@@ -259,6 +265,8 @@ namespace PhongKhamOnline.Migrations
                     b.HasKey("AppointmentId");
 
                     b.HasIndex("BacSiId");
+
+                    b.HasIndex("KhungThoiGianId");
 
                     b.ToTable("Appointments");
                 });
@@ -505,7 +513,15 @@ namespace PhongKhamOnline.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PhongKhamOnline.Models.KhungThoiGian", "KhungThoiGian")
+                        .WithMany()
+                        .HasForeignKey("KhungThoiGianId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("BacSi");
+
+                    b.Navigation("KhungThoiGian");
                 });
 
             modelBuilder.Entity("PhongKhamOnline.Models.BacSi", b =>

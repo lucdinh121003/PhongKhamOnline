@@ -1,5 +1,5 @@
 ﻿@using System.Security.Claims
-@model IEnumerable<PhongKhamOnline.Models.DoctorReview>
+@model List<DoctorReview>
 @using Microsoft.AspNetCore.Identity
 
 @inject SignInManager<ApplicationUser> SignInManager
@@ -7,18 +7,72 @@
 
 @{
     var user = await UserManager.GetUserAsync(User); // Lấy thông tin người dùng hiện tại
-    var selectedDoctorId = ViewBag.SelectedDoctorId; // ID bác sĩ được chọn
 }
 
 <style>
     .table-container {
-        width: 70%; /* Đặt chiều rộng bảng chiếm 70% chiều rộng màn hình */
-        margin: 0 auto; /* Căn giữa bảng với lề hai bên */
+        max-width: 90%;
+        margin: 20px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .table {
-        width: 100%; /* Đảm bảo bảng chiếm toàn bộ vùng chứa */
-        text-align: left; /* Căn lề trái nội dung trong bảng */
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .table-striped tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #a71d2a;
+        }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d;
     }
 </style>
 
@@ -28,42 +82,57 @@
             <tr>
                 <th>Ngày</th>
                 <th>Tên Bác Sĩ</th>
-                <th>Số sao</th>
+                <th>Đánh giá</th>
                 <th>Nội dung</th>
                 <th>Phản hồi</th>
                 <th>Hành động</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var review in Model)
+            @if (Model != null && Model.Any())
             {
-                @if (User.IsInRole("doctor") && review.BacSiId != user.IdBacSi)
+                foreach (var review in Model)
                 {
-                    continue; // Bỏ qua cuộc hẹn không phải của bác sĩ đang đăng nhập
+                    <tr>
+                        <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
+                        <td>@review.BacSi?.Ten </td>
+                        <td>
+                            @for (int i = 0; i < review.Rating; i++)
+                            {
+                                <i class="fas fa-star text-warning"></i>
+                            }
+                            @for (int i = review.Rating; i < 5; i++)
+                            {
+                                <i class="fas fa-star text-muted"></i>
+                            }
+                        </td>
+                        <td>@review.ReviewText</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(review.Reply))
+                            {
+                                <p>@review.Reply</p>
+                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa có phản hồi</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (string.IsNullOrEmpty(review.Reply) && User.IsInRole("doctor"))
+                                {
+                                    <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-primary btn-sm">Phản hồi</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
                 }
-
+            }
+            else
+            {
                 <tr>
-                    <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
-                    <td>@review.BacSi.Ten</td>
-                    <td>@review.Rating ⭐</td>
-                    <td>@review.ReviewText</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(review.Reply))
-                        {
-                            <p>@review.Reply</p>
-                            <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
-                        }
-                        else
-                        {
-                            <span class="text-muted">Chưa có phản hồi</span>
-                        }
-                    </td>
-                    <td>
-                        @if (string.IsNullOrEmpty(review.Reply) && User.IsInRole("doctor"))
-                        {
-                            <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-sm btn-primary">Phản hồi</a>
-                        }
-                    </td>
+                    <td colspan="6" class="text-center text-muted">Không có đánh giá nào.</td>
                 </tr>
             }
         </tbody>

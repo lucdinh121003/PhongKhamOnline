@@ -22,6 +22,8 @@ builder.Services.AddScoped<IBacSiRepository, EFBacSiRepository>();
 builder.Services.AddScoped<IChuyenMonBacSiRepository, EFChuyenMonBacSiRepository>();
 builder.Services.AddScoped<ILichLamViecRepository, EFLichLamViecRepository>();
 builder.Services.AddScoped<IKhungThoiGianRepository, EFKhungThoiGianRepository>();
+builder.Services.AddScoped<IDatLichKhamRepository, EFDatLichKhamRepository>();
+
 
 
 var app = builder.Build();

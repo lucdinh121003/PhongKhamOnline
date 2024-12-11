@@ -1,4 +1,11 @@
-﻿@model PhongKhamOnline.Models.DoctorViewModel
+﻿@using Microsoft.AspNetCore.Identity
+@model PhongKhamOnline.Models.DoctorViewModel
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
 
 <link rel="stylesheet" href="~/css/DNBS.css">
 
@@ -53,21 +60,18 @@
                                                 <span>Chưa xác định chuyên môn</span>
                                             }
                                         </p>
-                                        <a class="btn btn-display" asp-action="Display" asp-route-id="@doctor.Id">
-                                            <span>Xem Chi Tiết</span>
-                                            <em class="mdi mdi-calendar"></em>
-                                        </a>
-                                        @if (User.Identity.IsAuthenticated)
+
+                                        @if (SignInManager.IsSignedIn(User))
                                         {
-                                            <a class="btn btn-booking" asp-area="User" asp-controller="Appointment" asp-action="Create">
+                                            <a class="btn btn-display" asp-action="Display" asp-route-id="@doctor.Id">
                                                 <span>Đặt lịch</span>
                                                 <em class="mdi mdi-calendar"></em>
                                             </a>
                                         }
                                         else
                                         {
-                                            <a class="btn btn-booking" asp-area="Identity" asp-controller="Account" asp-action="Login">
-                                                <span>Đặt lịch</span>
+                                            <a class="btn btn-display" asp-action="Display" asp-route-id="@doctor.Id">
+                                                <span>Xem chi tiết</span>
                                                 <em class="mdi mdi-calendar"></em>
                                             </a>
                                         }

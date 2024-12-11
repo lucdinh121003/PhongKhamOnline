@@ -7,23 +7,66 @@
 
 @{
     var user = await UserManager.GetUserAsync(User); // Lấy thông tin người dùng hiện tại
-    int selectedDoctorId = ViewBag.BacSiId;
     string message = ViewBag.Message as string; // ID bác sĩ được chọn
 }
 
 <style>
     .table-container {
-        width: 70%; /* Đặt chiều rộng bảng chiếm 70% chiều rộng màn hình */
-        margin: 0 auto; /* Căn giữa bảng với lề hai bên */
+        width: 80%;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
     }
 
     .table {
-        width: 100%; /* Đảm bảo bảng chiếm toàn bộ vùng chứa */
-        text-align: left; /* Căn lề trái nội dung trong bảng */
+        width: 100%;
+        border-collapse: collapse;
     }
+
+        .table th, .table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+    .text-muted {
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    .reply-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .reply-container p {
+            margin: 0;
+        }
+
+        .reply-container small {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
 </style>
 
 <div class="table-container">
+    <h2 class="text-center mb-4">Danh sách đánh giá</h2>
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info text-center">@message</div>
+    }
     <table class="table table-striped">
         <thead>
             <tr>
@@ -32,7 +75,6 @@
                 <th>Đánh giá</th>
                 <th>Nội dung</th>
                 <th>Phản hồi</th>
-                <th>Thao tác</th>
             </tr>
         </thead>
         <tbody>
@@ -46,18 +88,14 @@
                     <td>
                         @if (!string.IsNullOrEmpty(review.Reply))
                         {
-                            <p>@review.Reply</p>
-                            <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                            <div class="reply-container">
+                                <p>@review.Reply</p>
+                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                            </div>
                         }
                         else
                         {
                             <span class="text-muted">Chưa có phản hồi</span>
-                        }
-                    </td>
-                    <td>
-                        @if (User.IsInRole("doctor") && string.IsNullOrEmpty(review.Reply))
-                        {
-                            <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-sm btn-primary">Phản hồi</a>
                         }
                     </td>
                 </tr>

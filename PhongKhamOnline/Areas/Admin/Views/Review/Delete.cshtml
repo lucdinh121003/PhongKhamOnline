@@ -1,0 +1,65 @@
+﻿@using System.Security.Claims
+@model IEnumerable<DoctorReview>
+
+<h2 class="text-center my-4">Danh sách đánh giá</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover text-center align-middle">
+        <thead class="table-primary">
+            <tr>
+                <th>#</th>
+                <th>Nội dung</th>
+                <th>Đánh giá</th>
+                <th>Bác sĩ</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                int count = 1;
+                foreach (var review in Model)
+                {
+                    <tr>
+                        <td>@count</td>
+                        <td>@review.ReviewText</td>
+                        <td>
+                            @for (int i = 0; i < review.Rating; i++)
+                            {
+                                <i class="text-warning fas fa-star"></i>
+                            }
+                            @for (int i = review.Rating; i < 5; i++)
+                            {
+                                <i class="text-muted fas fa-star"></i>
+                            }
+                        </td>
+                        <td>@review.BacSi?.Ten ?? "<i class='text-muted'>Không xác định</i>"</td>
+                        <td>
+                            @if (User.IsInRole("Admin") || (User.FindFirstValue(ClaimTypes.NameIdentifier) == review.BacSi?.UserId))
+                            {
+                                <form asp-action="DeleteReview" asp-route-id="@review.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có quyền</span>
+                            }
+                        </td>
+                    </tr>
+                    count++;
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center">
+                        <p class="text-muted my-3">Không có đánh giá nào được tìm thấy.</p>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

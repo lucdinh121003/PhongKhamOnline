@@ -1,0 +1,39 @@
+﻿@model IEnumerable<PhongKhamOnline.Models.Appointment>
+
+<h2 class="text-center my-4">Danh sách lịch khám</h2>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-primary">
+            <tr>
+                <th>Ngày</th>
+                <th>Bệnh nhân</th>
+                <th>Giờ</th>
+                <th>Bác sĩ</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in Model)
+            {
+                <tr>
+                    <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
+                    <td>@appointment.PatientName</td>
+                    <td>@appointment.KhungThoiGian.Time</td>
+                    <td>@appointment.BacSi.Ten</td>
+                    <td>
+                        <span class="badge 
+                            @(appointment.Status == AppointmentStatus.Pending ? "bg-warning text-dark" :
+                              appointment.Status == AppointmentStatus.Confirmed ? "bg-success" : 
+                              "bg-danger")">
+                            @(appointment.Status == AppointmentStatus.Pending ? "Chờ" :
+                              appointment.Status == AppointmentStatus.Confirmed ? "Xác nhận" : 
+                              "Hủy")
+                        </span>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

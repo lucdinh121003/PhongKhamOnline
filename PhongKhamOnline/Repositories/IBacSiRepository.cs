@@ -15,6 +15,8 @@ namespace PhongKhamOnline.Repositories
         Task<BacSi> GetByUserId(string userId);
 
         Task<BacSi> GetByEmail(string email);
+        Task<BacSi> GetByUserIdAsync(string userId);
+
     }
 
 }
