@@ -28,7 +28,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
 
             List<DoctorReview> reviews;
 
-            if (isAdmin)
+            if (User.IsInRole("admin"))
             {
                 // Nếu là Admin, lấy tất cả các đánh giá
                 reviews = await _context.doctorReviews

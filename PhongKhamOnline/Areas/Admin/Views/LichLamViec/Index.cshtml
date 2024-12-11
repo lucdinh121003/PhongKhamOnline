@@ -90,7 +90,6 @@
         <a asp-action="Create" class="btn btn-primary">
             <i class="fas fa-plus-circle"></i> Thêm Lịch Làm Việc
         </a>
-<<<<<<< HEAD
         <br />
         <a asp-action="CreateByFile" class="btn btn-primary mb-3">
             <i class="fas fa-plus-circle"></i> Thêm Lịch Bằng Excel
@@ -108,23 +107,6 @@
             </thead>
             <tbody>
                 @foreach (var item in Model)
-=======
-    </div>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Bác Sĩ</th>
-                <th>Ngày Làm Việc</th>
-                <th>Thời Gian</th>
-                <th>Số Lượng Tối Đa</th>
-                <th>Thao Tác</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var item in Model)
->>>>>>> Luc
                 {
                     <tr>
                         <td>@item.BacSi</td>

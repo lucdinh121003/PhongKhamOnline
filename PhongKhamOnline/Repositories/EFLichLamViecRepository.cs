@@ -15,8 +15,13 @@ namespace PhongKhamOnline.Repositories
 
         public async Task<IEnumerable<LichLamViec>> GetAllAsync()
         {
-            return await _context.LichLamViecs.Include(l => l.BacSi).Include(l => l.KhungThoiGian).ToListAsync();
+            return await _context.LichLamViecs
+                .Include(l => l.BacSi)
+                .Include(l => l.KhungThoiGian)
+                .Where(l => l.BacSi != null && l.KhungThoiGian != null) // Loại bỏ bản ghi null
+                .ToListAsync();
         }
+
 
         public async Task<LichLamViec> GetByIdAsync(int id)
         {
