@@ -7,140 +7,117 @@
 
 @{
     var user = await UserManager.GetUserAsync(User); // Lấy thông tin người dùng hiện tại
+    string message = ViewBag.Message as string; // ID bác sĩ được chọn
 }
 
 <style>
     .table-container {
-        max-width: 90%;
+        width: 80%;
         margin: 20px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
-        overflow: hidden;
     }
 
     .table {
         width: 100%;
-        margin: 0;
         border-collapse: collapse;
     }
 
         .table th, .table td {
-            padding: 12px 15px;
+            padding: 10px;
             text-align: left;
-            vertical-align: middle;
+            border-bottom: 1px solid #ddd;
         }
 
         .table th {
             background-color: #007bff;
-            color: white;
-            font-weight: bold;
+            color: #fff;
+            text-transform: uppercase;
         }
 
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: #f9f9f9;
-    }
-
-    .table-striped tbody tr:hover {
-        background-color: #f1f1f1;
-    }
-
-    .btn {
-        padding: 5px 10px;
-        font-size: 14px;
-        border-radius: 4px;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-        border: none;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-    }
-
-        .btn-danger:hover {
-            background-color: #a71d2a;
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
         }
 
     .text-muted {
         font-style: italic;
         color: #6c757d;
     }
+
+    .reply-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .reply-container p {
+            margin: 0;
+        }
+
+        .reply-container small {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
 </style>
 
 <div class="table-container">
+    <h2 class="text-center mb-4">Danh sách đánh giá</h2>
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info text-center">@message</div>
+    }
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Ngày</th>
-                <th>Tên Bác Sĩ</th>
+                <th>Ngày tạo</th>
+                <th>Bác sĩ</th>
                 <th>Đánh giá</th>
                 <th>Nội dung</th>
                 <th>Phản hồi</th>
-                <th>Hành động</th>
+                <th>Chức năng</th>
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var review in Model)
-                {
-                    <tr>
-                        <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
-                        <td>@review.BacSi?.Ten</td>
-                        <td>
-                            @for (int i = 0; i < review.Rating; i++)
-                            {
-                                <i class="fas fa-star text-warning"></i>
-                            }
-                            @for (int i = review.Rating; i < 5; i++)
-                            {
-                                <i class="fas fa-star text-muted"></i>
-                            }
-                        </td>
-                        <td>@review.ReviewText</td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(review.Reply))
-                            {
-                                <p>@review.Reply</p>
-                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Chưa có phản hồi</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                @if (string.IsNullOrEmpty(review.Reply) && User.IsInRole("doctor"))
-                                {
-                                    <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-primary btn-sm">Phản hồi</a>
-                                }
-                                @if (User.IsInRole("admin") || (user?.Id == review.BacSi?.UserId))
-                                {
-                                    <form asp-action="DeleteReview" asp-route-id="@review.Id" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?');" style="display:inline;">
-                                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                                    </form>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
-            }
-            else
+            @foreach (var review in Model)
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Không có đánh giá nào.</td>
+                    <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td>@review.BacSi.Ten</td>
+                    <td>@review.Rating ⭐</td>
+                    <td>@review.ReviewText</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(review.Reply))
+                        {
+                            <div class="reply-container">
+                                <p>@review.Reply</p>
+                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <span class="text-muted">Chưa có phản hồi</span>
+                        }
+                    </td>
+                    <td>
+
+                        <form asp-action="EditReply" asp-controller="Review" method="get" asp-area="Admin">
+                            <input type="hidden" name="id" value="@review.Id" />
+                            <button type="submit" class="btn btn-warning btn-sm">Chỉnh sửa</button>
+                        </form>
+
+                        <form asp-action="DeleteReview" method="post" style="display:inline;">
+                            <input type="hidden" name="reviewId" value="@review.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                                Xóa
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             }
+
         </tbody>
     </table>
 </div>

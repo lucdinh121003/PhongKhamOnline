@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PhongKhamOnline.DataAccess;
 using PhongKhamOnline.Models;
+using PhongKhamOnline.Repositories;
+using System.Numerics;
 using System.Security.Claims;
 
 namespace PhongKhamOnline.Areas.Admin.Controllers
@@ -11,113 +13,178 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
     [Authorize(Roles = "admin")]
     public class ReviewController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly IDoctorReviewRepository _reviewRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+        private readonly IBacSiRepository _bacSiRepository;
 
-        public ReviewController(ApplicationDbContext context)
+
+        public ReviewController(IBacSiRepository bacSiRepository, ApplicationDbContext context, IDoctorReviewRepository reviewRepository, UserManager<ApplicationUser> userManager)
         {
+            _reviewRepository = reviewRepository;
+            _userManager = userManager;
             _context = context;
+            _bacSiRepository = bacSiRepository;
         }
-
-        // Lấy danh sách đánh giá của bác sĩ (theo ID bác sĩ)
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Kiểm tra vai trò của người dùng
-            var isAdmin = User.IsInRole("admin");
-
-            List<DoctorReview> reviews;
-
-            if (User.IsInRole("admin"))
-            {
-                // Nếu là Admin, lấy tất cả các đánh giá
-                reviews = await _context.doctorReviews
-                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
-                                        .ToListAsync();
-            }
-            else
-            {
-                // Tìm Id của bác sĩ liên kết với UserId
-                var bacSi = await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
-                if (bacSi == null)
-                {
-                    return NotFound("Không tìm thấy bác sĩ liên kết với tài khoản này.");
-                }
-
-                // Lấy danh sách đánh giá chỉ thuộc về bác sĩ này
-                reviews = await _context.doctorReviews
-                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
-                                        .Where(r => r.BacSiId == bacSi.Id)
-                                        .ToListAsync();
-            }
-
-            // Truyền danh sách đánh giá vào View
+            var reviews = await _reviewRepository.GetAllReviewsAsync();
             return View(reviews);
         }
 
-        public async Task<IActionResult> DeleteReview(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteReview(int reviewId)
         {
-            // Tìm đánh giá theo Id
-            var review = await _context.doctorReviews.FindAsync(id);
+            // Lấy thông tin người dùng hiện tại
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            // Lấy đánh giá theo ID
+            var review = await _reviewRepository.GetReviewByIdAsync(reviewId);
             if (review == null)
             {
-                return NotFound("Không tìm thấy đánh giá cần xóa.");
+                return NotFound("Đánh giá không tồn tại.");
             }
 
-            // Kiểm tra vai trò hoặc quyền truy cập
-            var isAdmin = User.IsInRole("admin");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var bacSi = await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
-
-            if (!isAdmin && (bacSi == null || review.BacSiId != bacSi.Id))
+            // Kiểm tra quyền
+            if (User.IsInRole("admin") || review.UserId == userId)
             {
-                return Forbid("Bạn không có quyền xóa đánh giá này.");
+                // Xóa đánh giá
+                await _reviewRepository.DeleteReviewAsync(reviewId);
+
+                TempData["SuccessMessage"] = "Đánh giá đã được xóa thành công.";
+                
+                    return RedirectToAction("Index");
+
             }
-
-            // Xóa đánh giá
-            _context.doctorReviews.Remove(review);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            else
+            {
+                return Unauthorized("Bạn không có quyền xóa đánh giá này.");
+            }
         }
 
 
-
-        public IActionResult Reply(int reviewId)
+        [HttpGet]
+        public async Task<IActionResult> EditReply(int id)
         {
-            var review = _context.doctorReviews
-                .Include(r => r.BacSi)
-                .FirstOrDefault(r => r.Id == reviewId);
+            var review = await _reviewRepository.GetReviewByIdAsync(id);
+            if (review == null)
+            {
+                return NotFound();
+            }
 
-            if (review == null) return NotFound();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Kiểm tra nếu là Admin thì bỏ qua kiểm tra bác sĩ
+            if (User.IsInRole("admin"))
+            {
+                return View(review);
+            }
+
+            var doctor = await _bacSiRepository.GetByUserIdAsync(userId);
+
+            if (doctor == null || review.BacSiId != doctor.Id)
+            {
+                return Unauthorized(); // Từ chối nếu không phải bác sĩ của đánh giá này
+            }
 
             return View(review);
         }
 
         [HttpPost]
-        public IActionResult Reply(int reviewId, string reply)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditReply(DoctorReview review)
         {
-            var review = _context.doctorReviews.Find(reviewId);
-
-            if (review != null && !string.IsNullOrEmpty(reply))
+            if (ModelState.IsValid!=null)
             {
-                review.Reply = reply;
-                review.RepliedAt = DateTime.Now;
+                var updatedReview = await _reviewRepository.GetReviewByIdAsync(review.Id);
+                if (updatedReview == null)
+                {
+                    return NotFound();
+                }
 
-                _context.doctorReviews.Update(review);
-                _context.SaveChanges();
-                return RedirectToAction("Index", new { doctorId = review.BacSi });
+                // Nếu là Admin, chỉ cần cập nhật phản hồi
+                if (User.IsInRole("admin"))
+                {
+                    updatedReview.Reply = review.Reply;
+                    updatedReview.RepliedAt = DateTime.Now;
+                }
+                else
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var doctor = await _bacSiRepository.GetByUserIdAsync(userId);
+
+                    if (doctor == null || updatedReview.BacSiId != doctor.Id)
+                    {
+                        return Unauthorized(); // Từ chối nếu không phải bác sĩ của đánh giá này
+                    }
+
+                    updatedReview.Reply = review.Reply;
+                    updatedReview.RepliedAt = DateTime.Now;
+                }
+
+                await _reviewRepository.UpdateReviewAsync(updatedReview);
+
+                return RedirectToAction(nameof(Index)); // Quay lại danh sách đánh giá
             }
 
             return View(review);
         }
 
-        public IActionResult ShowReviews(int selectedDoctorId)
+        [HttpGet]
+        public async Task<IActionResult> EditReview(int id)
         {
-            var reviews = _context.doctorReviews.Include(r => r.BacSi).ToList();
-            ViewBag.SelectedDoctorId = selectedDoctorId; // Truyền ID bác sĩ được chọn vào ViewBag
-            return View(reviews);
+            var review = await _reviewRepository.GetReviewByIdAsync(id);
+            if (review == null)
+            {
+                return NotFound();
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Nếu là Admin, bỏ qua kiểm tra quyền sở hữu
+            if (User.IsInRole("admin") || review.UserId == userId)
+            {
+                return View(review);
+            }
+
+            return Unauthorized(); // Từ chối nếu không phải chủ sở hữu và không phải Admin
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditReview(DoctorReview review)
+        {
+            if (ModelState.IsValid!=null)
+            {
+                var updatedReview = await _reviewRepository.GetReviewByIdAsync(review.Id);
+                if (updatedReview == null)
+                {
+                    return NotFound();
+                }
+
+                // Nếu là Admin, cho phép chỉnh sửa bất kỳ đánh giá nào
+                if (User.IsInRole("admin") || updatedReview.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                {
+                    updatedReview.ReviewText = review.ReviewText;
+                    updatedReview.Rating = review.Rating;
+
+                    await _reviewRepository.UpdateReviewAsync(updatedReview);
+
+                    // Nếu là Admin, chuyển hướng về trang danh sách tất cả đánh giá
+                    if (User.IsInRole("admin"))
+                    {
+                        return RedirectToAction("Index", "Review", new { area = "Admin" });
+                    }
+
+                }
+
+                return Unauthorized(); // Từ chối nếu không có quyền
+            }
+
+            return View(review);
+        }
+
+
     }
 }

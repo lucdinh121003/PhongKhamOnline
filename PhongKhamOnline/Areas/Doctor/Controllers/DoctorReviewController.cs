@@ -1,100 +1,107 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhongKhamOnline.DataAccess;
 using PhongKhamOnline.Models;
-
-using System;
+using PhongKhamOnline.Repositories;
 using System.Security.Claims;
 
-namespace PhongKhamOnline.Controllers
+namespace PhongKhamOnline.Areas.Doctor.Controllers
 {
     [Area("Doctor")]
     [Authorize(Roles = "doctor")]
     public class DoctorReviewController : Controller
     {
+        private readonly IDoctorReviewRepository _reviewRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IBacSiRepository _bacSiRepository;
 
-        public DoctorReviewController(ApplicationDbContext context)
+
+        public DoctorReviewController(IBacSiRepository bacSiRepository, ApplicationDbContext context, IDoctorReviewRepository reviewRepository, UserManager<ApplicationUser> userManager)
         {
+            _reviewRepository = reviewRepository;
+            _userManager = userManager;
             _context = context;
+            _bacSiRepository = bacSiRepository;
         }
 
-        // Lấy danh sách đánh giá của bác sĩ (theo ID bác sĩ)
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);  // Lấy ID người dùng hiện tại
+            var doctor = await _bacSiRepository.GetByUserIdAsync(userId);  // Lấy bác sĩ theo UserId
 
-            // Kiểm tra vai trò của người dùng
-            var isAdmin = User.IsInRole("admin");
-
-            List<DoctorReview> reviews;
-
-            if (isAdmin)
+            if (doctor == null)
             {
-                // Nếu là Admin, lấy tất cả các đánh giá
-                reviews = await _context.doctorReviews
-                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
-                                        .ToListAsync();
+                return Unauthorized();  // Nếu không phải bác sĩ, từ chối truy cập
             }
-            else
+
+            // Lấy danh sách các đánh giá của bác sĩ
+            var reviews = await _reviewRepository.GetReviewsByDoctorIdAsync(doctor.Id);
+            return View(reviews);  // Truyền danh sách đánh giá vào view
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> EditReply(int id)
+        {
+            var review = await _reviewRepository.GetReviewByIdAsync(id);
+            if (review == null)
             {
-                // Tìm Id của bác sĩ liên kết với UserId
-                var bacSi = await _context.BacSis.FirstOrDefaultAsync(b => b.UserId == userId);
-                if (bacSi == null)
+                return NotFound();
+            }
+
+            // Kiểm tra nếu bác sĩ đang đăng nhập có phải là bác sĩ của đánh giá này không
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var doctor = await _bacSiRepository.GetByUserIdAsync(userId);
+
+            if (doctor == null || review.BacSiId != doctor.Id)
+            {
+                return Unauthorized();  // Nếu bác sĩ không đúng thì từ chối
+            }
+
+            return View(review);  // Trả về view để bác sĩ chỉnh sửa phản hồi
+        }
+
+        // Cập nhật phản hồi của bác sĩ
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditReply(DoctorReview review)
+        {
+            if (ModelState.IsValid != null)
+            {
+                var updatedReview = await _reviewRepository.GetReviewByIdAsync(review.Id);
+                if (updatedReview == null)
                 {
-                    return NotFound("Không tìm thấy bác sĩ liên kết với tài khoản này.");
+                    return NotFound();
                 }
 
-                // Lấy danh sách đánh giá chỉ thuộc về bác sĩ này
-                reviews = await _context.doctorReviews
-                                        .Include(r => r.BacSi) // Load thông tin bác sĩ nếu cần
-                                        .Where(r => r.BacSiId == bacSi.Id)
-                                        .ToListAsync();
+                if (User.IsInRole("doctor"))
+                {
+                    updatedReview.Reply = review.Reply;
+                    updatedReview.RepliedAt = DateTime.Now;
+                }
+                else
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var doctor = await _bacSiRepository.GetByUserIdAsync(userId);
+
+                    if (doctor == null || updatedReview.BacSiId != doctor.Id)
+                    {
+                        return Unauthorized(); // Từ chối nếu không phải bác sĩ của đánh giá này
+                    }
+
+                    updatedReview.Reply = review.Reply;
+                    updatedReview.RepliedAt = DateTime.Now;
+                }
+
+                await _reviewRepository.UpdateReviewAsync(updatedReview);
+
+                return RedirectToAction(nameof(Index)); // Quay lại danh sách đánh giá
             }
-
-            // Truyền danh sách đánh giá vào View
-            return View(reviews);
-        }
-
-
-        public IActionResult Reply(int reviewId)
-        {
-            var review = _context.doctorReviews
-                .Include(r => r.BacSi)
-                .FirstOrDefault(r => r.Id == reviewId);
-
-            if (review == null) return NotFound();
-
             return View(review);
         }
-
-        [HttpPost]
-        public IActionResult Reply(int reviewId, string reply)
-        {
-            var review = _context.doctorReviews.Find(reviewId);
-
-            if (review != null && !string.IsNullOrEmpty(reply))
-            {
-                review.Reply = reply;
-                review.RepliedAt = DateTime.Now;
-
-                _context.doctorReviews.Update(review);
-                _context.SaveChanges();
-                return RedirectToAction("Index", new { doctorId = review.BacSi });
-            }
-
-            return View(review);
-        }
-
-        public IActionResult ShowReviews(int selectedDoctorId)
-        {
-            var reviews = _context.doctorReviews.Include(r => r.BacSi).ToList();
-            ViewBag.SelectedDoctorId = selectedDoctorId; // Truyền ID bác sĩ được chọn vào ViewBag
-            return View(reviews);
-        }
-
-
     }
 }

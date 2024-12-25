@@ -100,7 +100,6 @@
                     <th>Bác Sĩ</th>
                     <th>Ngày Làm Việc</th>
                     <th>Thời Gian</th>
-                    <th>Số Lượng Tối Đa</th>
                     <th>Thao Tác</th>
                 </tr>
             </thead>
@@ -111,7 +110,6 @@
                         <td>@item.BacSi</td>
                         <td>@item.NgayLamViec.ToString("dd/MM/yyyy")</td>
                         <td>@item.ThoiGian</td>
-                        <td>@item.SoLuongToiDa</td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">

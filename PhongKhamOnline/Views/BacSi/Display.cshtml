@@ -9,127 +9,10 @@
 @{
     ViewData["Title"] = "Display";
 }
-@* <head>
-    <link rel="stylesheet" href="~/css/hienThiNgayRanh.css">
-</head> *@
-
 
 <style>
-    .section-title {
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
-    }
+    
 
-    /* Định dạng cho các thẻ span và em */
-    .section-title h1 {
-    color: #3f51b5;
-    }
-
-    .container-time {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    }
-
-    .box-time {
-    background: #000;
-    color: #fff;
-    padding: 20px;
-    }
-</style>
-<section class="detailt-doctor">
-    <div class="container">
-        <div class="section-title">
-            <h1>Thông tin chi tiết bác sĩ</h1>
-        </div>
-
-        <div class="row mt-4">
-            <!-- Thông tin bác sĩ -->
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <img class="card-img-top" src="@Html.DisplayFor(model => model.AnhDaiDien)" alt="Ảnh bác sĩ">
-                    <div class="card-body">
-                        <h5 class="card-title text-uppercase">@Html.DisplayFor(model => model.Ten)</h5>
-                        <p class="card-text">
-                            <strong>Chức vụ:</strong> Chuyên gia <br>
-                            <strong>Chuyên môn:</strong>
-                            @{
-                                var chuyenMonText = Model.ChuyenMonBacSiId switch
-                                {
-                                    1 => "Tai - Mũi - Họng",
-                                    2 => "Nội - Soi",
-                                    3 => "Cơ - Xương - Khớp",
-                                    _ => ""
-                                };
-                            }
-                            @chuyenMonText
-                        </p>
-                        <p>
-                            <strong>Đánh giá trung bình:</strong>
-                            @if (ViewBag.AverageRating != null)
-                            {
-                                <span>@ViewBag.AverageRating ⭐</span>
-                            }
-                            else
-                            {
-                                <span>Chưa có đánh giá</span>
-                            }
-                        </p>
-                        <p><strong>Tổng số đánh giá:</strong> @ViewBag.TotalReviews</p>
-
-                        <!-- Nút đánh giá hoặc đăng nhập -->
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <a class="btn btn-primary w-100 mt-3" asp-area="" asp-controller="BNDoctorReview" asp-action="Create" asp-route-bacSiId="@Model.Id">
-                                Đánh giá bác sĩ
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="btn btn-secondary w-100 mt-3" asp-area="Identity" asp-controller="Account" asp-action="Login">
-                                Đăng nhập để đánh giá
-                            </a>
-                        }
-
-                        <a class="btn btn-info w-100 mt-2" asp-area="" asp-controller="BNDoctorReview" asp-action="Index" asp-route-bacSiId="@Model.Id">
-                            Xem tất cả đánh giá
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-                </div>
-            <!-- Giới thiệu và khung giờ -->
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h4 class="mb-4">Giới thiệu</h4>
-                        <p>@Html.Raw(Model.MoTa.Replace("\n", "<br />"))</p>
-
-                        <h4 class="mt-5">Đặt lịch khám</h4>
-                        <input type="hidden" id="idUser" value="@Model.UserId" />
-                        <input type="hidden" id="idBacSi" value="@Model.Id" />
-                        <div class="form-group">
-                            <label for="ngayLamViec">Chọn ngày làm việc:</label>
-                            <input type="date" id="ngayLamViecUser" name="ngayLamViec"
-                                   class="form-control"
-                                   value="@DateTime.Now.ToString("yyyy-MM-dd")"
-                                   min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
-                        </div>
-
-                        <div id="khungGioContainer" class="mt-4">
-                            <h5>Khung giờ khả dụng:</h5>
-                            <div id="khungGioList" class="container-time"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
     .detail-doctor {
         padding: 40px 0;
     }
@@ -190,10 +73,106 @@
     }
 </style>
 
+<section class="detail-doctor">
+    <div class="container">
+        <div class="section-title">
+            <h1>
+                Thông tin chi tiết
+            </h1>
+        </div>
+        <div class="row mt-4">
+            <!-- Thông tin bác sĩ -->
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <img class="card-img-top" src="@Html.DisplayFor(model => model.AnhDaiDien)" alt="Ảnh bác sĩ">
+                    <div class="card-body">
+                        <h5 class="card-title text-uppercase">@Html.DisplayFor(model => model.Ten)</h5>
+                        <p class="card-text">
+                            <strong>Chức vụ:</strong> Chuyên gia <br>
+                            <strong>Chuyên môn:</strong>
+                            @{
+                                var chuyenMonText = Model.ChuyenMonBacSiId switch
+                                {
+                                    1 => "Tai - Mũi - Họng",
+                                    2 => "Nội - Soi",
+                                    3 => "Cơ - Xương - Khớp",
+                                    _ => ""
+                                };
+                            }
+                            @chuyenMonText
+                        </p>
+                        <p>
+                            <strong>Đánh giá trung bình:</strong>
+                            @if (ViewBag.AverageRating != null)
+                            {
+                                <span>@ViewBag.AverageRating ⭐</span>
+                            }
+                            else
+                            {
+                                <span>Chưa có đánh giá</span>
+                            }
+                        </p>
+                        <p><strong>Tổng số đánh giá:</strong> @ViewBag.TotalReviews</p>
+
+                        <!-- Nút đánh giá hoặc đăng nhập -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a class="btn btn-primary w-100 mt-3" asp-area="" asp-controller="BenhNhanReview" asp-action="Create" asp-route-bacSiId="@Model.Id">
+                                Đánh giá bác sĩ
+                            </a>
+                            <input type="hidden" id="isAuthenticated" value="true" />
+                        }
+                        else
+                        {
+                            <a class="btn btn-secondary w-100 mt-3" asp-area="Identity" asp-controller="Account" asp-action="Login">
+                                Đăng nhập để đánh giá
+                            </a>
+                        }
+
+                        <a class="btn btn-info w-100 mt-2" asp-area="" asp-controller="BenhNhanReview" asp-action="Index" asp-route-bacSiId="@Model.Id">
+                            Xem tất cả đánh giá
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+
+            <!-- Giới thiệu và khung giờ -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="mb-4">Giới thiệu</h4>
+                        <p>@Html.Raw(Model.MoTa.Replace("\n", "<br />"))</p>
+                        
+                        
+
+                        <input type="hidden" id="idUser" value="@Model.UserId" />
+                        <input type="hidden" id="idBacSi" value="@Model.Id" />
+                        <h4 class="mt-5">Đặt lịch khám</h4>
+                        <div class="form-group">
+                            <label for="ngayLamViec">Chọn ngày làm việc:</label>
+                            <input type="date" id="ngayLamViecUser" name="ngayLamViec"
+                                   class="form-control"
+                                   value="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                        </div>
+
+                        <div id="khungGioContainer" class="mt-4">
+                            <h5>Khung giờ khả dụng:</h5>
+                            <div id="khungGioList" class="container-time"></div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-            $(document).ready(function () {
+    $(document).ready(function () {
         // Hàm xử lý khi thay đổi ngày làm việc
         function loadKhungGio(ngayLamViecUser, idUser, isAuthenticated) {
             $.ajax({
@@ -214,11 +193,6 @@
                         return;
                     }
 
-                    if (response.length === 0) {
-                        khungGioList.append('<p class="text-muted">Không có khung giờ khả dụng cho ngày này.</p>');
-                        return;
-                    }
-
                     response.forEach(function (khungGio) {
                         var radioButton = `
                             <div class="box-time">
@@ -230,17 +204,17 @@
 
                     // Khi người dùng chọn khung giờ
                     $('input[name="selectedTimeId"]').on('change', function () {
-                        if (!isAuthenticated) {
-                            // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
-                            window.location.href = '/Identity/Account/Login';
-                            return;
-                        }
-
                         var selectedTimeId = $(this).val();
                         var selectedDate = $('#ngayLamViecUser').val();
                         var idBacSi = $('#idBacSi').val();
 
-                        // Chuyển hướng tới trang đặt lịch với ID của khung giờ
+                        if (!isAuthenticated) {
+                            // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
+                            window.location.href = `/Identity/Account/Login`;
+                            return;
+                        }
+
+                        // Chuyển hướng tới trang đặt lịch với ID của khung giờ nếu đã đăng nhập
                         window.location.href = `/BNAppointment/DatLich?ngay=${selectedDate}&timeId=${selectedTimeId}&idBacSi=${idBacSi}`;
                     });
                 },
@@ -262,84 +236,4 @@
         // Gọi ngay khi load trang với ngày mặc định
         $('#ngayLamViecUser').trigger('change');
     });
-
-
 </script>
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <form>
-                        <!-- Truyền giá trị ID của người dùng (ẩn) -->
-                        <input type="hidden" id="idUser" value="@Model.UserId" />
-                        <input type="hidden" id="idBacSi" value="@Model.Id" />
-
-
-                        <!-- Chọn ngày làm việc -->
-                        <div class="form-group">
-                            <label for="ngayLamViecUser">Ngày làm việc</label>
-                            <input type="date"
-                            class="form-control"
-                            id="ngayLamViecUser"
-                            name="ngayLamViec"
-                            min="@DateTime.Now.ToString("yyyy-MM-dd")"
-                            required />
-                        </div>
-                    </form>
-
-                    <!-- Danh sách khung giờ -->
-                    <div id="khungGioContainer" class="form-group mt-3">
-                        <h4>Khung giờ</h4>
-                        <div id="khungGioList" class="container-time"></div>
-                    </div>
-                }
-
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
-                    $(document).ready(function () {
-                        // Khi người dùng chọn ngày
-                        $('#ngayLamViecUser').on('change', function () {
-                            var ngayLamViec = $(this).val(); // Lấy ngày làm việc
-                            var idUser = $('#idUser').val(); // Lấy ID người dùng
-
-                            // Gửi yêu cầu AJAX lấy danh sách khung giờ
-                            $.ajax({
-                                url: '/Doctor/LichLamViecDoctor/GetKhungGioDaDat',
-                                type: 'GET',
-                                data: { idUser: idUser, ngayLamViec: ngayLamViec },
-                                success: function (data) {
-                                    var khungGioList = $('#khungGioList'); // Khu vực chứa khung giờ
-                                    khungGioList.empty(); // Xóa các nội dung cũ
-
-                                    if (data.length === 0) {
-                                        // Nếu không có khung giờ, hiển thị thông báo
-                                        khungGioList.append('<p class="text-muted">Không có khung giờ khả dụng cho ngày này.</p>');
-                                        return;
-                                    }
-
-                                    // Hiển thị danh sách khung giờ với ID làm giá trị
-                                    data.forEach(function (item) {
-                                        var radioButton = `
-                                            <div class="box-time">
-                                                <input type="radio" id="khungGio_${item.id}" name="selectedTimeId" value="${item.id}">
-                                                <label for="khungGio_${item.id}">${item.time}</label>
-                                            </div>`;
-                                        khungGioList.append(radioButton);
-                                    });
-
-                                    // Khi người dùng chọn khung giờ
-                                    $('input[name="selectedTimeId"]').on('change', function () {
-                                        var selectedTimeId = $(this).val(); // Lấy ID khung giờ đã chọn
-                                        var selectedDate = $('#ngayLamViecUser').val(); // Lấy ngày làm việc
-                                        var idBacSi = $('#idBacSi').val(); // Lấy ID của bác sĩ
-
-                                        // Chuyển hướng tới trang đặt lịch với ID của khung giờ
-                                        window.location.href = `/BNAppointment/DatLich?ngay=${selectedDate}&timeId=${selectedTimeId}&idBacSi=${idBacSi}`;
-                                    });
-                                },
-                                error: function () {
-                                    alert('Có lỗi xảy ra khi tải danh sách khung giờ.');
-                                }
-                            });
-                        });
-                    });
-</script>
-

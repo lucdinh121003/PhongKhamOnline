@@ -65,6 +65,7 @@
                     <th>Đánh giá</th>
                     <th>Nội dung</th>
                     <th>Phản hồi</th>
+                    <th>Chức năng</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,6 +88,16 @@
                             {
                                 <span class="text-muted">Chưa có phản hồi</span>
                             }
+                        </td>
+                        <td>
+                            <a href="@Url.Action("EditReview", "BenhNhanReview", new { id = review.Id })" class="btn btn-primary btn-sm">Chỉnh Sửa</a>
+                            <form asp-action="DeleteReview" method="post" style="display:inline;">
+                                <input type="hidden" name="reviewId" value="@review.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Bạn có chắc muốn xóa đánh giá này?');">
+                                    Xóa
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 }

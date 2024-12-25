@@ -23,6 +23,7 @@ builder.Services.AddScoped<IChuyenMonBacSiRepository, EFChuyenMonBacSiRepository
 builder.Services.AddScoped<ILichLamViecRepository, EFLichLamViecRepository>();
 builder.Services.AddScoped<IKhungThoiGianRepository, EFKhungThoiGianRepository>();
 builder.Services.AddScoped<IDatLichKhamRepository, EFDatLichKhamRepository>();
+builder.Services.AddScoped<IDoctorReviewRepository, DoctorReviewRepository>();
 
 
 
@@ -59,5 +60,7 @@ app.UseEndpoints(endpoints =>
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
 
 app.Run();

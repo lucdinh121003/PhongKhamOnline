@@ -89,52 +89,53 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Any())
-            {
-                foreach (var review in Model)
-                {
-                    <tr>
-                        <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
-                        <td>@review.BacSi?.Ten </td>
-                        <td>
-                            @for (int i = 0; i < review.Rating; i++)
-                            {
-                                <i class="fas fa-star text-warning"></i>
-                            }
-                            @for (int i = review.Rating; i < 5; i++)
-                            {
-                                <i class="fas fa-star text-muted"></i>
-                            }
-                        </td>
-                        <td>@review.ReviewText</td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(review.Reply))
-                            {
-                                <p>@review.Reply</p>
-                                <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
-                            }
-                            else
-                            {
-                                <span class="text-muted">Chưa có phản hồi</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                @if (string.IsNullOrEmpty(review.Reply) && User.IsInRole("doctor"))
-                                {
-                                    <a asp-action="Reply" asp-route-reviewId="@review.Id" class="btn btn-primary btn-sm">Phản hồi</a>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
-            }
-            else
+            @foreach (var review in Model)
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Không có đánh giá nào.</td>
+                    <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
+                    <td>@review.BacSi?.Ten</td>
+                    <td>
+                        @for (int i = 0; i < review.Rating; i++)
+                        {
+                            <i class="fas fa-star text-warning"></i>
+                        }
+                        @for (int i = review.Rating; i < 5; i++)
+                        {
+                            <i class="fas fa-star text-muted"></i>
+                        }
+                    </td>
+                    <td>@review.ReviewText</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(review.Reply))
+                        {
+                            <p>@review.Reply</p>
+                            <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Chưa có phản hồi</span>
+                        }
+                    </td>
+                    <td>
+                        @if (User.IsInRole("doctor") && review.Reply == null)
+                        {
+                            <a href="@Url.Action("EditReply", "DoctorReview", new { id = review.Id })" class="btn btn-primary btn-sm">Phản hồi</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("EditReply", "DoctorReview", new { id = review.Id })" class="btn btn-primary btn-sm">Chỉnh sửa</a>
+                        }
+                    </td>
                 </tr>
             }
+
         </tbody>
     </table>
 </div>
+
+
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Không có đánh giá nào cho bác sĩ này.</p>
+}

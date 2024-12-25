@@ -7,95 +7,215 @@
 }
 
 <style>
+    body {
+    font-family: Arial, sans-serif;
+    }
+
+    .avatar-dropdown {
+    position: relative;
+    display: inline-block;
+    }
+
+    .avatar-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    }
+
+    .avatar-button img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    }
+
+    .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    z-index: 1000;
+    }
+
+    .user-info {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-info img {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    }
+
+    .user-info .name {
+    font-weight: bold;
+    margin: 0;
+    }
+
+    .user-info .team {
+    margin: 0;
+    font-size: 0.9em;
+    color: #888;
+    }
+
+    .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    }
+
+    .menu-item:hover {
+    background-color: #f9f9f9;
+    }
+
+    .menu-item i.icon {
+    margin-right: 10px;
+    font-size: 1.2em;
+    }
+
+    .menu-item a {
+    text-decoration: none;
+    color: black;
+    flex-grow: 1;
+    }
+
+    .menu-item .logout {
+    color: red;
+    }
+
+    .menu-divider {
+    height: 1px;
+    background-color: #f0f0f0;
+    margin: 10px 0;
+    }
+
     /* Chung cho menu điều hướng */
     .navbar-nav.menu-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        list-style: none;
-        margin: 0;
-        padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
     }
 
     .nav-item {
-        margin: 0 5px;
+    margin: 0 5px;
     }
 
     .btn-menu {
-        padding: 8px 12px;
-        font-size: 14px;
-        border-radius: 4px;
-        transition: background-color 0.2s ease-in-out;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
     }
 
-        /* Hover effect */
-        .btn-menu:hover {
-            background-color: #e0e0e0;
-        }
+    /* Hover effect */
+    .btn-menu:hover {
+    background-color: #e0e0e0;
+    }
 
     /* Dropdown menu styles */
     .dropdown-menu {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        display: none;
-        min-width: 150px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        list-style: none;
-        padding: 5px 0;
-        border: 1px solid #ddd;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    display: none;
+    min-width: 150px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 5px 0;
+    border: 1px solid #ddd;
     }
 
     .dropdown:hover .dropdown-menu {
-        display: block;
+    display: block;
     }
 
     .dropdown-item {
-        padding: 8px 12px;
-        text-decoration: none;
-        color: #333;
-        display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #333;
+    display: block;
     }
 
-        .dropdown-item:hover {
-            background-color: #f0f0f0;
-        }
+    .dropdown-item:hover {
+    background-color: #f0f0f0;
+    }
 
 </style>
 <ul class="navbar-nav menu-container">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a id="manage" class="nav-link text-dark btn-menu" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Xin Chào @user.FullName</a>
-        </li>
-        @if (User.IsInRole("admin"))
-        {
-            <li class="nav-item">
-                <a id="admin" class="nav-link text-dark btn-menu" asp-area="Admin" asp-controller="BacSiManager" asp-action="Index">Admin</a>
-            </li>
-        }
-        @if (User.IsInRole("doctor"))
-        {
-            <li class="nav-item">
-                <a id="doctor-work" class="nav-link text-dark btn-menu" asp-area="Doctor" asp-controller="" asp-action="">Lịch Làm Việc</a>
-            </li>
-        }
-        @if (!User.IsInRole("doctor") && !User.IsInRole("admin"))
-        {
-            <li class="nav-item dropdown">
-                <a href="#" class="nav-link text-dark btn-menu dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">Lịch sử</a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/BNDoctorReview/ReviewHistory">Đánh giá</a></li>
-                    <li><a class="dropdown-item" href="/BNAppointment">Đặt Lịch</a></li>
-                </ul>
-            </li>
-        }
+        <div class="avatar-dropdown">
+            <button class="avatar-button">
+                <img src="/admin/img/undraw_profile.svg" alt="Avatar">
+            </button>
+            <div class="dropdown-menu">
+                <div class="user-info">
+                    <div>
+                        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">@user.FullName</a>
+                    </div>
+                </div>
 
-        <li class="nav-item">
-            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-dark btn-menu border-0">Logout</button>
-            </form>
-        </li>
+                @if (User.IsInRole("admin"))
+                {
+                    <div class="menu-item">
+                        <i class="icon">📓</i>
+                        <a id="admin" class="nav-link text-dark" asp-area="Admin" asp-controller="BacSiManager" asp-action="Index">Quản lý</a>
+
+                    </div>
+                }
+
+                @if (User.IsInRole("doctor"))
+                {
+                    <div class="menu-item">
+                        <i class="icon">📅</i>
+                        <a id="doctor-work" class="nav-link text-dark" asp-area="Doctor" asp-controller="" asp-action="">Lịch Làm Việc</a>
+                    </div>
+                    <div class="menu-item">
+                        <i class="icon">📅</i>
+                        <a id="doctor-work" class="nav-link text-dark" asp-area="Doctor" asp-controller="DoctorAppointment" asp-action="">Lịch Khám</a>
+                    </div>
+                    <div class="menu-item">
+                        <i class="icon">⭐</i>
+                        <a id="doctor-work" class="nav-link text-dark" asp-area="Doctor" asp-controller="DoctorReview" asp-action="">Đánh Giá</a>
+                    </div>
+                }
+
+                @if (!User.IsInRole("doctor") && !User.IsInRole("admin"))
+                {
+                     <div class="menu-item">
+                        <i class="icon">⭐</i>
+                        <a href="/BenhNhanReview/ReviewHistory">Đánh giá</a>
+                     </div>
+
+                    <div class="menu-item">
+                        <i class="icon">📅</i>
+                        <a href="/BNAppointment">Đặt Lịch</a>
+                    </div>
+                }
+                <div class="menu-divider"></div>
+                <div class="menu-item">
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" style="display: none;">
+                    </form>
+                    <a href="javascript:void(0);" onclick="document.getElementById('logoutForm').submit();" class="nav-link text-dark">
+                        <i class="icon logout">↪</i> Đăng Xuất
+                    </a>
+                </div>
+            </div>
+        </div>
     }
     else
     {
@@ -107,3 +227,18 @@
         </li>
     }
 </ul>
+
+<script>
+        document.querySelector('.avatar-button').addEventListener('click', () => {
+      const dropdown = document.querySelector('.dropdown-menu');
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+      const dropdown = document.querySelector('.dropdown-menu');
+      if (!e.target.closest('.avatar-dropdown')) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+</script>

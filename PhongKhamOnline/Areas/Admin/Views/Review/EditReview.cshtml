@@ -1,0 +1,35 @@
+﻿
+@model DoctorReview
+
+@{
+    ViewData["Title"] = "Chỉnh sửa đánh giá";
+}
+
+<h2>Chỉnh sửa đánh giá</h2>
+
+<form asp-action="EditReview" method="post" class="form-horizontal">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label for="Rating" class="form-label">Số sao:</label>
+        <select asp-for="Rating" class="form-select" required>
+            <option value="5">⭐⭐⭐⭐⭐ (Xuất sắc)</option>
+            <option value="4">⭐⭐⭐⭐ (Tốt)</option>
+            <option value="3">⭐⭐⭐ (Khá)</option>
+            <option value="2">⭐⭐ (Trung bình)</option>
+            <option value="1">⭐ (Kém)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ReviewText" class="control-label">Nội dung đánh giá</label>
+        <textarea asp-for="ReviewText" class="form-control" rows="5"></textarea>
+        <span asp-validation-for="ReviewText" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+        <a asp-action="ReviewHistory" class="btn btn-secondary">Hủy</a>
+    </div>
+</form>
+
