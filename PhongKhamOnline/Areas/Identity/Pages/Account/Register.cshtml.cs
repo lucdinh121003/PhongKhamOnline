@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -19,6 +20,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using PhongKhamOnline.Models;
+using PhongKhamOnline.Repositories;
 
 namespace PhongKhamOnline.Areas.Identity.Pages.Account
 {
@@ -30,14 +32,18 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IUserRepository _roleManager;
+
 
         public RegisterModel(
+            IUserRepository userRepository,
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
+            _roleManager = userRepository;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -119,12 +125,14 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
 
                 user.FullName = Input.FullName;
 
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
+                    var datarole = await _roleManager.GetByNameAsync("user");
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
@@ -144,8 +152,15 @@ namespace PhongKhamOnline.Areas.Identity.Pages.Account
                         return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
                     }
                     else
-                    {
+                    {                      
                         await _signInManager.SignInAsync(user, isPersistent: false);
+                        var userRoleAdd = new IdentityUserRole<string>
+                        {
+                            UserId = user.Id,
+                            RoleId = datarole.Id
+                        };
+
+                        await _roleManager.AddAsync(userRoleAdd);
                         return LocalRedirect(returnUrl);
                     }
                 }

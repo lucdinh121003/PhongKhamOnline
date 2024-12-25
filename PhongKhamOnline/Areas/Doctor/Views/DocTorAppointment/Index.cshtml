@@ -101,6 +101,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>STT</th> 
                 <th>Ngày khám</th>
                 <th>Tên bệnh nhân</th>
                 <th>Giờ</th>
@@ -110,49 +111,48 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model != null && Model.Any())
+            @for (int i = 0; i < Model.Count(); i++)
             {
-                foreach (var appointment in Model)
-                {
-                    <tr>
-                        <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
-                        <td>@appointment.PatientName</td>
-                        <td>@appointment.KhungThoiGian.Time</td>
-                        <td>@appointment.BacSi?.Ten</td>
-                        <td>
-                            @if (appointment.Status == AppointmentStatus.Pending)
+                var appointment = Model.ElementAt(i);
+                <tr>
+                    <td>@(i + 1)</td> 
+                    <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
+                    <td>@appointment.PatientName</td>
+                    <td>@appointment.KhungThoiGian.Time</td>
+                    <td>@appointment.BacSi?.Ten</td>
+                    <td>
+                        @if (appointment.Status == AppointmentStatus.Pending)
+                        {
+                            <span class="badge badge-warning">Chờ xác nhận</span>
+                        }
+                        else if (appointment.Status == AppointmentStatus.Confirmed)
+                        {
+                            <span class="badge badge-success">Đã xác nhận</span>
+                        }
+                        else if (appointment.Status == AppointmentStatus.Cancelled)
+                        {
+                            <span class="badge badge-danger">Đã hủy</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (appointment.Status == AppointmentStatus.Pending && (User.IsInRole("admin") || User.IsInRole("doctor")))
                             {
-                                <span class="badge badge-warning">Chờ xác nhận</span>
+                                <form method="post" asp-action="Confirm" asp-route-id="@appointment.AppointmentId" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
+                                </form>
+                                <form method="post" asp-action="Cancel" asp-route-id="@appointment.AppointmentId" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
+                                </form>
                             }
-                            else if (appointment.Status == AppointmentStatus.Confirmed)
-                            {
-                                <span class="badge badge-success">Đã xác nhận</span>
-                            }
-                            else if (appointment.Status == AppointmentStatus.Cancelled)
-                            {
-                                <span class="badge badge-danger">Đã hủy</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                @if (appointment.Status == AppointmentStatus.Pending && (User.IsInRole("admin") || User.IsInRole("doctor")))
-                                {
-                                    <form method="post" asp-action="Confirm" asp-route-id="@appointment.AppointmentId" class="d-inline">
-                                        <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
-                                    </form>
-                                    <form method="post" asp-action="Cancel" asp-route-id="@appointment.AppointmentId" class="d-inline">
-                                        <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
-                                    </form>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
+                        </div>
+                    </td>
+                </tr>
             }
-            else
+            @if (Model == null || !Model.Any())
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Không có lịch khám nào.</td>
+                    <td colspan="7" class="text-center text-muted">Không có lịch khám nào.</td>
                 </tr>
             }
         </tbody>

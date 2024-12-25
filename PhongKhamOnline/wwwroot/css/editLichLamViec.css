@@ -1,0 +1,61 @@
+﻿/* Giới thiệu chung */
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+/* Cải thiện giao diện của các thành phần trong form */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Làm cho các nút bấm đẹp hơn */
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+/* Style cho phần tên bác sĩ */
+.doctor-name {
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Tạo kiểu cho các khung giờ làm việc */
+.time-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.time-item {
+    display: inline-block;
+    width: 48%;
+}
+
+/* Thêm màu cho các label và input */
+label {
+    font-weight: bold;
+}
+
+input[type="date"],
+input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}

@@ -70,6 +70,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>STT</th>
                 <th>Ngày tạo</th>
                 <th>Bác sĩ</th>
                 <th>Đánh giá</th>
@@ -79,9 +80,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var review in Model)
+            @foreach (var (review, index) in Model.Select((value, i) => (value, i)))
             {
                 <tr>
+                    <td>@(index + 1)</td> <!-- Số thứ tự -->
                     <td>@review.CreatedAt.ToString("dd/MM/yyyy")</td>
                     <td>@review.BacSi.Ten</td>
                     <td>@review.Rating ⭐</td>
@@ -93,7 +95,6 @@
                                 <p>@review.Reply</p>
                                 <small>(@review.RepliedAt?.ToString("dd/MM/yyyy HH:mm"))</small>
                             </div>
-
                         }
                         else
                         {
@@ -101,7 +102,6 @@
                         }
                     </td>
                     <td>
-
                         <form asp-action="EditReply" asp-controller="Review" method="get" asp-area="Admin">
                             <input type="hidden" name="id" value="@review.Id" />
                             <button type="submit" class="btn btn-warning btn-sm">Chỉnh sửa</button>
@@ -121,3 +121,4 @@
         </tbody>
     </table>
 </div>
+

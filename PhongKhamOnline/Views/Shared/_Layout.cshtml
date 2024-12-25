@@ -138,9 +138,10 @@
 </head>
 
 
-<body>
+<body overflow: hidden;
+      overflow-y: auto;>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="container pt-2">
                 <ul class="navbar-nav flex-grow-1">
                     <a asp-area="" asp-controller="Home" asp-action="Index">
@@ -184,7 +185,7 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid">
+    <div class="container-fluid" style="padding-left: 0px; padding-right: 0px">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

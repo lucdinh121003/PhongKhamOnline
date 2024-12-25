@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhongKhamOnline.DataAccess;
@@ -7,16 +8,21 @@ using PhongKhamOnline.Repositories;
 
 namespace PhongKhamOnline.Controllers
 {
+    
     public class BacSiController : Controller
     {
+        private readonly IDatLichKhamRepository _datLichKhamRepository;
         private readonly IBacSiRepository _BacSiRepository;
+        private readonly ILichLamViecRepository _lichLamViecRepository;
         private readonly IChuyenMonBacSiRepository _ChuyenMonBacSiRepository;
         private IEnumerable<BacSi> listDoctor = [];
         private IEnumerable<ChuyenMonBacSi> listSpecialties = [];
         private readonly ApplicationDbContext _context;
 
-        public BacSiController(IBacSiRepository BacSiRepository, IChuyenMonBacSiRepository ChuyenMonBacSiRepository, ApplicationDbContext context)
+
+        public BacSiController(IDatLichKhamRepository datLichKhamRepository, IBacSiRepository BacSiRepository, IChuyenMonBacSiRepository ChuyenMonBacSiRepository, ApplicationDbContext context)
         {
+            _datLichKhamRepository = datLichKhamRepository;
             _BacSiRepository = BacSiRepository;
             _ChuyenMonBacSiRepository = ChuyenMonBacSiRepository;
             _context = context;
@@ -29,7 +35,7 @@ namespace PhongKhamOnline.Controllers
             listSpecialties = await _ChuyenMonBacSiRepository.GetAllAsync();
 
             // Lọc bác sĩ theo chuyên môn nếu specialtyId được chỉ định
-            IEnumerable<BacSi> BacSis;
+            IEnumerable<BacSi> BacSis;// Khai báo một danh sách
             if (specialtyId.HasValue && specialtyId.Value > 0)
             {
                 BacSis = await _BacSiRepository.GetBySpecialtyAsync(specialtyId.Value);
@@ -47,6 +53,40 @@ namespace PhongKhamOnline.Controllers
             };
 
             return View(viewModel);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous] // Để cho mọi tài khoản truy cập
+        public async Task<IActionResult> GetKhungGioDaDatOfUser(string idUser, DateTime ngayLamViec, int idBacSi)
+        {
+            // Lấy danh sách lịch làm việc của bác sĩ
+            var lichLamViecBacSi = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(idBacSi, ngayLamViec);
+
+            // Kiểm tra nếu bác sĩ không có lịch làm việc hôm nay
+            if (lichLamViecBacSi == null || !lichLamViecBacSi.Any())
+            {
+                return Json(new { message = "Bác sĩ không có thời gian rảnh hôm nay." });
+            }
+
+            // Lấy danh sách lịch khám của user với bác sĩ đó
+            var lichKhamUser = await _datLichKhamRepository.GetByPatientAsync(idUser);
+            var lichKhamCuaBacSi = lichKhamUser
+                .Where(a => a.BacSiId == idBacSi && a.NgayKham.Date == ngayLamViec.Date)
+                .Select(a => a.KhungThoiGianId)
+                .ToList();
+
+            // Lấy danh sách các khung giờ đã được đặt
+            var khungGioDaDatOfUser = lichLamViecBacSi
+                .Where(l => lichKhamCuaBacSi.Contains(l.KhungThoiGianId))
+                .Select(l => new
+                {
+                    l.KhungThoiGianId,
+                    l.KhungThoiGian.Time
+                })
+                .ToList();        
+
+            return Json(khungGioDaDatOfUser);
         }
 
         public async Task<IActionResult> Display(int id)
@@ -81,6 +121,7 @@ namespace PhongKhamOnline.Controllers
                 // Gán giá trị vào ViewBag
                 ViewBag.AverageRating = roundedRating;
                 ViewBag.TotalReviews = totalReviews;
+
             }
 
             return View(bacSi);

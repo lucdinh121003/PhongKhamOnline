@@ -15,9 +15,10 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         private readonly IBacSiRepository _BacSiRepository;
         private readonly IChuyenMonBacSiRepository _ChuyenMonBacSiRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public BacSiManagerController(IBacSiRepository BacSiRepository, UserManager<ApplicationUser> userManager, IChuyenMonBacSiRepository ChuyenMonBacSiRepository)
+        private readonly IUserRepository _roleManager;
+        public BacSiManagerController(IBacSiRepository BacSiRepository, IUserRepository userRepository, UserManager<ApplicationUser> userManager, IChuyenMonBacSiRepository ChuyenMonBacSiRepository)
         {
+            _roleManager = userRepository;
             _BacSiRepository = BacSiRepository;
             _ChuyenMonBacSiRepository = ChuyenMonBacSiRepository;
             _userManager = userManager;
@@ -42,20 +43,47 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
             ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon");
             if (ModelState.IsValid !=null)
             {
+                if (AnhDaiDien == null || AnhDaiDien.Length == 0)
+                {
+                    ModelState.AddModelError("AnhDaiDien", "Vui lòng thêm ảnh đại diện cho bác sĩ.");
+                    return View(product);
+                }
+
                 if (AnhDaiDien != null)
                 {
                     product.AnhDaiDien = await SaveImage(AnhDaiDien);
                 }
-                if (product.Email == null || product.Email == "")
+
+                if (string.IsNullOrEmpty(product.Email))
                 {
+                    ModelState.AddModelError("Email", "Email không được để trống.");
                     return View(product);
                 }
+                // Kiểm tra email đã tồn tại trong danh sách bác sĩ khác
+                var existingDoctor = await _BacSiRepository.GetByEmail(product.Email);
+                if (existingDoctor != null)
+                {
+                    ModelState.AddModelError("Email", "Email này đã được sử dụng bởi bác sĩ khác.");
+                    return View(product);
+                }
+
                 var dataUser = await _userManager.FindByEmailAsync(product.Email);
                 if (dataUser == null)
                 {
                     ModelState.AddModelError("Email", "Email không khớp với email đăng ký của bác sĩ.");
                     return View(product);
                 }
+
+                var datarole = await _roleManager.GetByNameAsync("doctor");
+
+                // Khởi tạo biến userRoleAdd
+                var userRoleAdd = new IdentityUserRole<string>
+                {
+                    UserId = dataUser.Id,
+                    RoleId = datarole.Id
+                };
+               
+                await _roleManager.AddAsync(userRoleAdd);
                 product.UserId = dataUser.Id;
                 await _BacSiRepository.AddAsync(product);
                 return RedirectToAction(nameof(Index));
@@ -121,24 +149,14 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 ViewBag.ChuyenMonBacSi = new SelectList(chuyenMons, "Id", "TenChuyenMon", product.ChuyenMonBacSiId);
                 return View(product);
             }
-
-
             // Gán giá trị UserId nếu không thay đổi
-            product.UserId = product.UserId ?? existingBacSi.UserId;
-
-           
-
+            product.UserId = product.UserId ?? existingBacSi.UserId;  
             // Cập nhật dữ liệu
             await _BacSiRepository.UpdateAsync(product);
 
             // Chuyển hướng về Index sau khi lưu thành công
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
-
         public async Task<IActionResult> Delete(int id)
         {
             var product = await _BacSiRepository.GetByIdAsync(id);
@@ -152,8 +170,36 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var product = await _BacSiRepository.GetByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Lấy thông tin user dựa trên UserId của bác sĩ
+            var userRole = await _roleManager.GetByIdAsync(product.UserId);
+
+            // Kiểm tra nếu user có vai trò "doctor"
+            if (userRole != null && userRole.RoleId == (await _roleManager.GetByNameAsync("doctor")).Id)
+            {
+                // Xóa vai trò "doctor"
+                await _roleManager.DeleteUserRoleAsync(product.UserId, userRole.RoleId);
+
+                // Gán vai trò "user" cho tài khoản
+                var userRoleUser = new IdentityUserRole<string>
+                {
+                    UserId = product.UserId,
+                    RoleId = (await _roleManager.GetByNameAsync("user")).Id
+                };
+                await _roleManager.AddAsync(userRoleUser);
+            }
+
+            // Xóa thông tin bác sĩ
             await _BacSiRepository.DeleteAsync(id);
+
+            TempData["SuccessMessage"] = "Xóa bác sĩ và cập nhật quyền thành công!";
             return RedirectToAction(nameof(Index));
         }
+        
     }
 }

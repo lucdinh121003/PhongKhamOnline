@@ -18,17 +18,18 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         private readonly IBacSiRepository _bacSiRepository;
         private readonly IKhungThoiGianRepository _khungThoiGianRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public LichLamViecController(ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository, IKhungThoiGianRepository khungThoiGianRepository, UserManager<ApplicationUser> userManager)
+        public LichLamViecController(IUserRepository userRepository, ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository, IKhungThoiGianRepository khungThoiGianRepository, UserManager<ApplicationUser> userManager)
         {
             _lichLamViecRepository = lichLamViecRepository;
             _bacSiRepository = bacSiRepository;
             _khungThoiGianRepository = khungThoiGianRepository;
             _userManager = userManager;
+
         }
 
         public async Task<IActionResult> Index()
         {
+
             var lichLamViecs = await _lichLamViecRepository.GetAllAsync();
 
             // Nhóm dữ liệu và tính số lượng tối đa (không tính theo mốc thời gian)
@@ -39,9 +40,9 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                     Id = g.First().Id,  // Thêm Id từ mục đầu tiên trong nhóm
                     BacSi = g.Key.Ten,
                     NgayLamViec = g.Key.NgayLamViec,
-                    ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time)),
+                    ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time))
                     
-                    SoLuongToiDa = g.Max(l => l.SoLuongToiDa)  // Lấy số lượng tối đa trong nhóm
+                    //SoLuongToiDa = g.Max(l => l.SoLuongToiDa) 
                 })
                 .ToList();
 
@@ -53,12 +54,6 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
         [AllowAnonymous] // Để cho mọi tài khoản truy cập
         public async Task<IActionResult> GetKhungGioDaDat(int bacSiId, DateTime ngayLamViec)
         {
-            //// Tìm bác sĩ dựa trên idUser (idUser có thể là ID của tài khoản hoặc bác sĩ)
-            //var findBacSi = await _bacSiRepository.GetByUserId(idUser);
-            //if (findBacSi == null)
-            //{
-            //    return Json(new { error = "Không tìm thấy bác sĩ." });
-            //}
             // Tìm bác sĩ dựa trên ID
             var findBacSi = await _bacSiRepository.GetByIdAsync(bacSiId);
             if (findBacSi == null)
@@ -88,7 +83,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int bacSiId, DateTime ngayLamViec, List<string> khungGios, int soLuongToiDa)
+        public async Task<IActionResult> Create(int bacSiId, DateTime ngayLamViec, List<string> khungGios)
         {
             if (ngayLamViec <= DateTime.Now)
             {
@@ -133,8 +128,8 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 {
                     BacSiId = bacSiId,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa
+                    KhungThoiGianId = khungGioId
+                    //SoLuongToiDa = soLuongToiDa
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -143,7 +138,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
+                //existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -184,7 +179,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, DateTime ngayLamViec, List<string> khungGios, int soLuongToiDa)
+        public async Task<IActionResult> Edit(int id, DateTime ngayLamViec, List<string> khungGios)
         {
             var lichLamViec = await _lichLamViecRepository.GetByIdAsync(id);
             if (lichLamViec == null)
@@ -222,8 +217,8 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                 {
                     BacSiId = lichLamViec.BacSiId,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa,
+                    KhungThoiGianId = khungGioId
+                    //SoLuongToiDa = soLuongToiDa,
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -232,7 +227,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
+                //existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -296,7 +291,7 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                             var email = worksheet.Cells[row, 2].Text.Trim();
                             var ngayLamViecText = worksheet.Cells[row, 3].Text.Trim();
                             var thoiGianText = worksheet.Cells[row, 4].Text.Trim();
-                            var soLuongToiDaText = worksheet.Cells[row, 5].Text.Trim();
+                            //var soLuongToiDaText = worksheet.Cells[row, 5].Text.Trim();
 
                             var bacSi = await _bacSiRepository.GetByEmail(email);
                             if (bacSi == null)
@@ -348,8 +343,8 @@ namespace PhongKhamOnline.Areas.Admin.Controllers
                                 {
                                     BacSi = bacSi,
                                     NgayLamViec = ngayLamViec,
-                                    KhungThoiGian = khungThoiGian,
-                                    SoLuongToiDa = Convert.ToInt32(soLuongToiDaText)
+                                    KhungThoiGian = khungThoiGian
+                                    //SoLuongToiDa = Convert.ToInt32(soLuongToiDaText)
                                 };
 
                                 await _lichLamViecRepository.AddAsync(newSchedule);

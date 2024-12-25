@@ -145,10 +145,11 @@
                 </div>
                 <div class="row">
                     <div class="col">
-                        <label asp-for="MoTa" class="control-label">Mô Tả </label>
-                        <input asp-for="MoTa" class="form-control" />
+                        <label asp-for="MoTa" class="control-label">Mô Tả</label>
+                        <textarea asp-for="MoTa" class="form-control" rows="4" style="resize: vertical;"></textarea>
                         <span asp-validation-for="MoTa" class="text-danger"></span>
                     </div>
+
                     <div class="col">
                         <label asp-for="SoTaiKhoan" class="control-label">Số Tài Khoản (*)</label>
                         <input asp-for="SoTaiKhoan" class="form-control" />

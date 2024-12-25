@@ -9,7 +9,7 @@ using System.Data;
 namespace PhongKhamOnline.Areas.Doctor.Controllers
 {
     [Area("Doctor")]
-    //[Authorize(Roles = "doctor")]
+    [Authorize(Roles = "doctor")]
 
     public class LichLamViecDoctorController : Controller
     {
@@ -17,19 +17,27 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
         private readonly IBacSiRepository _bacSiRepository;
         private readonly IKhungThoiGianRepository _khungThoiGianRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDatLichKhamRepository _datLichKhamRepository;
 
-        public LichLamViecDoctorController(ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository, IKhungThoiGianRepository khungThoiGianRepository, UserManager<ApplicationUser> userManager)
+        public LichLamViecDoctorController(IDatLichKhamRepository datLichKhamRepository, ILichLamViecRepository lichLamViecRepository, IBacSiRepository bacSiRepository, IKhungThoiGianRepository khungThoiGianRepository, UserManager<ApplicationUser> userManager)
         {
             _lichLamViecRepository = lichLamViecRepository;
             _bacSiRepository = bacSiRepository;
             _khungThoiGianRepository = khungThoiGianRepository;
             _userManager = userManager;
+            _datLichKhamRepository = datLichKhamRepository;
+
         }
 
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.GetUserAsync(User);
             var currentBacSi = await _bacSiRepository.GetByUserId(currentUser.Id);
+            if (currentBacSi == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy thông tin bác sĩ.";
+                return RedirectToAction("Index", "Home");
+            }
 
             // Lấy danh sách lịch làm việc của bác sĩ đăng nhập
             var lichLamViecs = await _lichLamViecRepository.GetByBacSiIdAsync(currentBacSi.Id);
@@ -43,7 +51,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                     BacSi = g.Key.Ten,
                     NgayLamViec = g.Key.NgayLamViec,
                     ThoiGian = string.Join(", ", g.Select(l => l.KhungThoiGian.Time)),
-                    SoLuongToiDa = g.Max(l => l.SoLuongToiDa) // Lấy số lượng tối đa trong nhóm
+                    //SoLuongToiDa = g.Max(l => l.SoLuongToiDa) 
                 })
                 .ToList();
 
@@ -72,10 +80,50 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             {
                 Id = l.KhungThoiGianId,
                 time = l.KhungThoiGian.Time,
-                maxQuantity = l.SoLuongToiDa
             }).ToList();
 
             return Json(khungGioDaDat);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetKhungGioDaDatOfUser(string idUser, DateTime ngayLamViec, string idBacSi)
+        {
+            // Tìm bác sĩ dựa trên idBacSi
+            var findBacSi = await _bacSiRepository.GetByUserId(idUser);
+            if (findBacSi == null)
+            {
+                return Json(new { error = "Không tìm thấy bác sĩ." });
+            }
+
+            // Lấy danh sách khung giờ làm việc của bác sĩ
+            var workingSchedules = await _lichLamViecRepository.getListLichLamViecByBacSiIdAndDate(findBacSi.Id, ngayLamViec);
+            if (workingSchedules == null || !workingSchedules.Any())
+            {
+                return Json(new { message = "Bác sĩ không có lịch làm việc hôm nay." });
+            }
+
+            // Lấy danh sách lịch khám đã đặt của user
+            var userAppointments = await _datLichKhamRepository.GetByUserIdAndDateAsync(idUser, ngayLamViec);
+            var bookedTimes = userAppointments.Select(a => a.KhungThoiGianId).ToList();
+
+            // Lọc ra các khung giờ của bác sĩ chưa bị trùng với lịch khám của user
+            var availableTimes = workingSchedules.Where(l => !bookedTimes.Contains(l.KhungThoiGianId))
+                                                 .Select(l => new
+                                                 {
+                                                     Id = l.KhungThoiGianId,
+                                                     Time = l.KhungThoiGian.Time
+                                                 })
+                                                 .ToList();
+
+            if (availableTimes.Any())
+            {
+                return Json(availableTimes);
+            }
+            else
+            {
+                return Json(new { message = "Không còn khung giờ trống cho bác sĩ này." });
+            }
         }
 
 
@@ -142,8 +190,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = findBacSi.Id,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa
+                    KhungThoiGianId = khungGioId
+                    //SoLuongToiDa = soLuongToiDa
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -152,7 +200,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
+                //existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -228,8 +276,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                 {
                     BacSiId = lichLamViec.BacSiId,
                     NgayLamViec = ngayLamViec,
-                    KhungThoiGianId = khungGioId,
-                    SoLuongToiDa = soLuongToiDa
+                    KhungThoiGianId = khungGioId
+                    //SoLuongToiDa = soLuongToiDa
                 };
                 await _lichLamViecRepository.AddAsync(newSchedule);
             }
@@ -238,7 +286,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
             foreach (var khungGioId in newKhungGioIds.Intersect(existingKhungGioIds))
             {
                 var existingSchedule = existingScheduleDict[khungGioId];
-                existingSchedule.SoLuongToiDa = soLuongToiDa;
+                //existingSchedule.SoLuongToiDa = soLuongToiDa;
                 await _lichLamViecRepository.UpdateAsync(existingSchedule);
             }
 
@@ -306,7 +354,7 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                             var email = worksheet.Cells[row, 2].Text.Trim();
                             var ngayLamViecText = worksheet.Cells[row, 3].Text.Trim();
                             var thoiGianText = worksheet.Cells[row, 4].Text.Trim();
-                            var soLuongToiDaText = worksheet.Cells[row, 5].Text.Trim();
+                            //var soLuongToiDaText = worksheet.Cells[row, 5].Text.Trim();
                             var bacSi = await _bacSiRepository.GetByEmail(email);
                             if (bacSi == null)
                             {
@@ -359,8 +407,8 @@ namespace PhongKhamOnline.Areas.Doctor.Controllers
                                 {
                                     BacSiId = bacSi.Id,
                                     NgayLamViec = ngayLamViec,
-                                    KhungThoiGianId = khungThoiGian.Id,
-                                    SoLuongToiDa = Convert.ToInt32(soLuongToiDaText)
+                                    KhungThoiGianId = khungThoiGian.Id
+                                    //SoLuongToiDa = Convert.ToInt32(soLuongToiDaText)
                                 };
 
                                 await _lichLamViecRepository.AddAsync(newSchedule);
