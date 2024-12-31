@@ -95,13 +95,103 @@
         background-color: #dc3545;
         color: white;
     }
+
+    .filter-container {
+        max-width: 90%;
+        margin: 20px auto;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+        .filter-container input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+    .filter-container {
+        max-width: 90%;
+        margin: 20px auto;
+        padding: 10px 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #f8f9fa; /* Nền sáng giống bảng */
+        font-family: Arial, sans-serif;
+    }
+
+        .filter-container label {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .filter-container input[type="date"] {
+            padding: 8px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            color: #333;
+            outline: none;
+        }
+
+            .filter-container input[type="date"]:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            }
+
+        .filter-container div {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .filter-container span {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+    #totalAppointments {
+        font-weight: bold;
+        color: #333;
+    }
+
+    #confirmedAppointments {
+        font-weight: bold;
+        color: #28a745; /* Xanh lá giống "Đã xác nhận" */
+    }
+
+    #cancelledAppointments {
+        font-weight: bold;
+        color: #dc3545; /* Đỏ giống "Đã hủy" */
+    }
+
+    #pendingAppointments {
+        font-weight: bold;
+        color: #ffc107; /* Cam giống "Chờ xác nhận" */
+    }
+
 </style>
+
+<div class="filter-container">
+    <label for="dateFilter">Chọn ngày: </label>
+    <input type="date" id="dateFilter" />
+    <div style="margin-top: 10px;">
+        <span id="totalAppointments" style="font-weight: bold;">Tổng số: 0</span> |
+        <span id="confirmedAppointments" style="color: green;">Đã xác nhận: 0</span> |
+        <span id="cancelledAppointments" style="color: red;">Đã hủy: 0</span> |
+        <span id="pendingAppointments" style="color: orange;">Chờ xác nhận: 0</span>
+    </div>
+</div>
 
 <div class="table-container">
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>STT</th> 
+                <th>STT</th>
                 <th>Ngày khám</th>
                 <th>Tên bệnh nhân</th>
                 <th>Giờ</th>
@@ -110,17 +200,17 @@
                 <th>Hành động</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="appointmentTableBody">
             @for (int i = 0; i < Model.Count(); i++)
             {
                 var appointment = Model.ElementAt(i);
                 <tr>
-                    <td>@(i + 1)</td> 
-                    <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
+                    <td>@(i + 1)</td>
+                    <td data-date="@appointment.NgayKham.ToString("yyyy-MM-dd")">@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
                     <td>@appointment.PatientName</td>
                     <td>@appointment.KhungThoiGian.Time</td>
                     <td>@appointment.BacSi?.Ten</td>
-                    <td>
+                    <td data-status="@appointment.Status">
                         @if (appointment.Status == AppointmentStatus.Pending)
                         {
                             <span class="badge badge-warning">Chờ xác nhận</span>
@@ -158,3 +248,47 @@
         </tbody>
     </table>
 </div>
+<script>
+    const dateFilter = document.getElementById('dateFilter');
+    const tableBody = document.getElementById('appointmentTableBody');
+    const totalAppointments = document.getElementById('totalAppointments');
+    const confirmedAppointments = document.getElementById('confirmedAppointments');
+    const cancelledAppointments = document.getElementById('cancelledAppointments');
+    const pendingAppointments = document.getElementById('pendingAppointments');
+    const rows = tableBody.getElementsByTagName('tr');
+
+    dateFilter.addEventListener('input', () => {
+        const selectedDate = dateFilter.value;
+        let total = 0; // Tổng số lịch khám
+        let confirmed = 0; // Đã xác nhận
+        let cancelled = 0; // Đã hủy
+        let pending = 0; // Chờ xác nhận
+
+        Array.from(rows).forEach(row => {
+            const rowDate = row.cells[1].getAttribute('data-date'); // Ngày khám (cột 2)
+            const rowStatus = row.cells[5].getAttribute('data-status'); // Trạng thái (cột 6)
+
+            if (rowDate === selectedDate || !selectedDate) {
+                row.style.display = ''; // Hiển thị hàng
+                if (rowDate === selectedDate) {
+                    total++;
+                    if (rowStatus === "Confirmed") {
+                        confirmed++;
+                    } else if (rowStatus === "Cancelled") {
+                        cancelled++;
+                    } else if (rowStatus === "Pending") {
+                        pending++;
+                    }
+                }
+            } else {
+                row.style.display = 'none'; // Ẩn hàng
+            }
+        });
+
+        // Cập nhật số liệu thống kê
+        totalAppointments.textContent = `Tổng số: ${total}`;
+        confirmedAppointments.textContent = `Đã xác nhận: ${confirmed}`;
+        cancelledAppointments.textContent = `Đã hủy: ${cancelled}`;
+        pendingAppointments.textContent = `Chờ xác nhận: ${pending}`;
+    });
+</script>

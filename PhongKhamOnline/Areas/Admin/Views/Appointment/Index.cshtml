@@ -95,7 +95,95 @@
         background-color: #dc3545;
         color: white;
     }
+
+    .filter-container {
+        max-width: 90%;
+        margin: 20px auto;
+        padding: 10px 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: #f8f9fa; /* Nền sáng giống bảng */
+        font-family: Arial, sans-serif;
+    }
+
+        .filter-container label {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .filter-container input[type="date"] {
+            padding: 8px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            color: #333;
+            outline: none;
+        }
+
+            .filter-container input[type="date"]:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            }
+
+        .filter-container div {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .filter-container span {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+    #totalAppointments {
+        font-weight: bold;
+        color: #333;
+    }
+
+    #confirmedAppointments {
+        font-weight: bold;
+        color: #28a745; /* Xanh lá giống "Đã xác nhận" */
+    }
+
+    #cancelledAppointments {
+        font-weight: bold;
+        color: #dc3545; /* Đỏ giống "Đã hủy" */
+    }
+
+    #pendingAppointments {
+        font-weight: bold;
+        color: #ffc107; /* Cam giống "Chờ xác nhận" */
+    }
 </style>
+
+<div class="filter-container" style="display: flex; align-items: center;">
+    <label for="dateFilter" style="margin-right: 10px;">Chọn ngày: </label>
+    <input type="date" id="dateFilter" style="margin-right: 20px;" />
+    <label for="doctorFilter" style="margin-right: 10px;">Chọn bác sĩ: </label>
+    <select id="doctorFilter" style="margin-right: 20px;">
+        <option value="">Tất cả</option>
+        @foreach (var doctor in Model.Select(a => a.BacSi?.Ten).Distinct())
+        {
+            if (!string.IsNullOrEmpty(doctor))
+            {
+                <option value="@doctor.Trim()">@doctor.Trim()</option>
+            }
+        }
+    </select>
+
+    <div>
+        <span id="totalAppointments" style="font-weight: bold; margin-right: 10px;">Tổng số: 0</span> |
+        <span id="confirmedAppointments" style="color: green; margin-right: 10px;">Đã xác nhận: 0</span> |
+        <span id="cancelledAppointments" style="color: red; margin-right: 10px;">Đã hủy: 0</span> |
+        <span id="pendingAppointments" style="color: orange;">Chờ xác nhận: 0</span>
+    </div>
+</div>
+
 
 <div class="table-container">
     <table class="table table-striped">
@@ -110,54 +198,107 @@
                 <th>Hành động</th>
             </tr>
         </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
+        <tbody id="appointmentTableBody">
+            @for (int i = 0; i < Model.Count(); i++)
             {
-                for (int i = 0; i < Model.Count(); i++)
-                {
-                    var appointment = Model.ElementAt(i);
-                    <tr>
-                        <td>@(i + 1)</td> <!-- Hiển thị STT -->
-                        <td>@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
-                        <td>@appointment.PatientName</td>
-                        <td>@appointment.KhungThoiGian.Time</td>
-                        <td>@appointment.BacSi?.Ten</td>
-                        <td>
-                            @if (appointment.Status == AppointmentStatus.Pending)
+                var appointment = Model.ElementAt(i);
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td data-date="@appointment.NgayKham.ToString("yyyy-MM-dd")">@appointment.NgayKham.ToString("dd/MM/yyyy")</td>
+                    <td>@appointment.PatientName</td>
+                    <td>@appointment.KhungThoiGian.Time</td>
+                    <td>@appointment.BacSi?.Ten</td>
+                    <td data-status="@appointment.Status">
+                        @if (appointment.Status == AppointmentStatus.Pending)
+                        {
+                            <span class="badge badge-warning">Chờ xác nhận</span>
+                        }
+                        else if (appointment.Status == AppointmentStatus.Confirmed)
+                        {
+                            <span class="badge badge-success">Đã xác nhận</span>
+                        }
+                        else if (appointment.Status == AppointmentStatus.Cancelled)
+                        {
+                            <span class="badge badge-danger">Đã hủy</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (appointment.Status == AppointmentStatus.Pending && (User.IsInRole("admin") || User.IsInRole("doctor")))
                             {
-                                <span class="badge badge-warning">Chờ xác nhận</span>
+                                <form method="post" asp-action="Confirm" asp-route-id="@appointment.AppointmentId" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
+                                </form>
+                                <form method="post" asp-action="Cancel" asp-route-id="@appointment.AppointmentId" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
+                                </form>
                             }
-                            else if (appointment.Status == AppointmentStatus.Confirmed)
-                            {
-                                <span class="badge badge-success">Đã xác nhận</span>
-                            }
-                            else if (appointment.Status == AppointmentStatus.Cancelled)
-                            {
-                                <span class="badge badge-danger">Đã hủy</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                @if (appointment.Status == AppointmentStatus.Pending && (User.IsInRole("admin") || User.IsInRole("doctor")))
-                                {
-                                    <form method="post" asp-action="Confirm" asp-route-id="@appointment.AppointmentId" class="d-inline">
-                                        <button type="submit" class="btn btn-success btn-sm">Xác nhận</button>
-                                    </form>
-                                    <form method="post" asp-action="Cancel" asp-route-id="@appointment.AppointmentId" class="d-inline">
-                                        <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
-                                    </form>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
+                        </div>
+                    </td>
+                </tr>
             }
-            else
+            @if (Model == null || !Model.Any())
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted">Không có lịch khám nào.</td>
+                    <td colspan="7" class="text-center text-muted">Không có lịch khám nào.</td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+<script>
+    const doctorFilter = document.getElementById('doctorFilter'); // Dropdown chọn bác sĩ
+    const dateFilter = document.getElementById('dateFilter'); // Lọc theo ngày
+    const tableBody = document.getElementById('appointmentTableBody'); // Phần thân bảng
+    const totalAppointments = document.getElementById('totalAppointments'); // Tổng số
+    const confirmedAppointments = document.getElementById('confirmedAppointments'); // Đã xác nhận
+    const cancelledAppointments = document.getElementById('cancelledAppointments'); // Đã hủy
+    const pendingAppointments = document.getElementById('pendingAppointments'); // Chờ xác nhận
+    const rows = tableBody.getElementsByTagName('tr'); // Các hàng trong bảng
+
+    // Hàm lọc lịch khám
+    function filterAppointments() {
+        const selectedDate = dateFilter.value; // Giá trị ngày chọn
+        const selectedDoctor = doctorFilter.value; // Giá trị bác sĩ chọn
+        let total = 0;
+        let confirmed = 0;
+        let cancelled = 0;
+        let pending = 0;
+
+        // Duyệt qua từng dòng trong bảng
+        Array.from(rows).forEach(row => {
+            const rowDate = row.cells[1].getAttribute('data-date'); // Ngày khám (cột 2)
+            const rowDoctor = row.cells[4].textContent.trim(); // Tên bác sĩ (cột 5)
+            const rowStatus = row.cells[5].getAttribute('data-status'); // Trạng thái (cột 6)
+
+            // Kiểm tra điều kiện lọc
+            const matchesDate = !selectedDate || rowDate === selectedDate;
+            const matchesDoctor = !selectedDoctor || rowDoctor === selectedDoctor;
+
+            if (matchesDate && matchesDoctor) {
+                row.style.display = ''; // Hiển thị hàng
+                total++;
+                if (rowStatus === "Confirmed") {
+                    confirmed++;
+                } else if (rowStatus === "Cancelled") {
+                    cancelled++;
+                } else if (rowStatus === "Pending") {
+                    pending++;
+                }
+            } else {
+                row.style.display = 'none'; // Ẩn hàng
+            }
+        });
+
+        // Cập nhật số liệu thống kê
+        totalAppointments.textContent = `Tổng số: ${total}`;
+        confirmedAppointments.textContent = `Đã xác nhận: ${confirmed}`;
+        cancelledAppointments.textContent = `Đã hủy: ${cancelled}`;
+        pendingAppointments.textContent = `Chờ xác nhận: ${pending}`;
+    }
+
+    // Gắn sự kiện vào bộ lọc
+    dateFilter.addEventListener('input', filterAppointments);
+    doctorFilter.addEventListener('change', filterAppointments); // Khi thay đổi bác sĩ
+
+</script>
